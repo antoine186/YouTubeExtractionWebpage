@@ -11,6 +11,7 @@ import TaggingPage from './TaggingPage'
 import ProgressionPage from './ProgressionPage'
 import LinkingPage from './LinkingPage'
 import CheckEmptyObject from '../utils/CheckEmptyObject'
+import ChannelAnalysisPage from './ChannelAnalysisPage'
 import { api, basicAccountCreateUrl } from '../utils/backend_configuration/BackendConfig'
 import GenerateRandomString from '../utils/GenerateRandomString'
 import { setAnonSession } from '../store/Slices/AnonSessionSlice'
@@ -69,8 +70,9 @@ class LandingSwitchingPage extends Component {
       userSessionValidated: this.props.userSession.validated,
       searchShow: false,
       tagShow: false,
-      progression: true,
-      linking: false
+      progression: false,
+      linking: false,
+      channelShow: true
     }
 
     this.clearToggleChoice = this.clearToggleChoice.bind(this)
@@ -78,6 +80,7 @@ class LandingSwitchingPage extends Component {
     this.toggleClickTag = this.toggleClickTag.bind(this)
     this.toggleClickProgression = this.toggleClickProgression.bind(this)
     this.toggleClickLinking = this.toggleClickLinking.bind(this)
+    this.toggleChannelShow = this.toggleChannelShow.bind(this)
   }
 
   componentDidUpdate (prevProps, prevState) {
@@ -91,6 +94,7 @@ class LandingSwitchingPage extends Component {
     this.setState({ tagShow: false })
     this.setState({ progression: false })
     this.setState({ linking: false })
+    this.setState({ channelShow: false })
   }
 
   toggleClickSearch () {
@@ -117,6 +121,12 @@ class LandingSwitchingPage extends Component {
     this.setState({ linking: true })
   }
 
+  toggleChannelShow () {
+    console.log('Toggling to channel')
+    this.clearToggleChoice()
+    this.setState({ channelShow: true })
+  }
+
   render () {
     return (
       <View>
@@ -136,21 +146,24 @@ class LandingSwitchingPage extends Component {
                 {this.state.linking &&
                   <Text style={styles.titleText}>Emotional Machines Link Analysis (Experimental)</Text>
                 }
+                {this.state.channelShow &&
+                  <Text style={styles.titleText}>Emotional Machines Channel Analysis (Experimental)</Text>
+                }
               </View>
               <ToggleButtonGroup
                   // value={alignment}
                   exclusive
                   // onChange={handleAlignment}
               >
-                  <ToggleButton value="progression" onClick={this.toggleClickProgression}>
+                  <ToggleButton value="channel" onClick={this.toggleChannelShow}>
                     <View>
-                      <Image style={styles.image} source={require('../assets/images/chart.jpg')} />
+                      <Image style={styles.image} source={require('../assets/images/profile-icon.png')} />
                       <Text>Click Me</Text>
                     </View>
                   </ToggleButton>
-                  <ToggleButton value="search" onClick={this.toggleClickSearch}>
+                  <ToggleButton value="progression" onClick={this.toggleClickProgression}>
                     <View>
-                      <Image style={styles.image} source={require('../assets/images/magnifying-glass-search-icon-png-transparent.png')} />
+                      <Image style={styles.image} source={require('../assets/images/chart.jpg')} />
                       <Text>Click Me</Text>
                     </View>
                   </ToggleButton>
@@ -176,6 +189,9 @@ class LandingSwitchingPage extends Component {
               }
               {this.state.linking &&
                 <LinkingPage />
+              }
+              {this.state.channelShow &&
+                <ChannelAnalysisPage />
               }
           </View>
       </View>

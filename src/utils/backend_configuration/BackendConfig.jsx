@@ -35,6 +35,9 @@ export const getPreviousLinking = './get-previous-linking'
 export const createCheckout = './create_checkout'
 export const checkStillSearching = './check_still_searching'
 export const checkStillCharting = './check_still_charting'
+export const checkStillAnalysingChannel = './checkStillAnalysingChannel'
+export const getPreviousChannelResult = './getPreviousChannelResult'
+export const channelUrl = './channelUrl'
 
 export const api = axios.create({
   baseURL: backendUrl
