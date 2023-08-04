@@ -11,7 +11,7 @@ import TaggingPage from './TaggingPage'
 import ProgressionPage from './ProgressionPage'
 import LinkingPage from './LinkingPage'
 import CheckEmptyObject from '../utils/CheckEmptyObject'
-import ChannelAnalysisPage from './ChannelAnalysisPage'
+import Video1AnalysisPage from './Video1AnalysisPage'
 import { api, basicAccountCreateUrl } from '../utils/backend_configuration/BackendConfig'
 import GenerateRandomString from '../utils/GenerateRandomString'
 import { setAnonSession } from '../store/Slices/AnonSessionSlice'
@@ -72,7 +72,8 @@ class LandingSwitchingPage extends Component {
       tagShow: false,
       progression: false,
       linking: false,
-      channelShow: true
+      channelShow: false,
+      video1Show: true
     }
 
     this.clearToggleChoice = this.clearToggleChoice.bind(this)
@@ -81,6 +82,7 @@ class LandingSwitchingPage extends Component {
     this.toggleClickProgression = this.toggleClickProgression.bind(this)
     this.toggleClickLinking = this.toggleClickLinking.bind(this)
     this.toggleChannelShow = this.toggleChannelShow.bind(this)
+    this.toggleVideo1Show = this.toggleVideo1Show(this)
   }
 
   componentDidUpdate (prevProps, prevState) {
@@ -95,6 +97,7 @@ class LandingSwitchingPage extends Component {
     this.setState({ progression: false })
     this.setState({ linking: false })
     this.setState({ channelShow: false })
+    this.setState({ video1Show: true })
   }
 
   toggleClickSearch () {
@@ -127,6 +130,12 @@ class LandingSwitchingPage extends Component {
     this.setState({ channelShow: true })
   }
 
+  toggleVideo1Show () {
+    console.log('Toggling to video 1')
+    this.clearToggleChoice()
+    this.setState({ video1Show: true })
+  }
+
   render () {
     return (
       <View>
@@ -149,15 +158,27 @@ class LandingSwitchingPage extends Component {
                 {this.state.channelShow &&
                   <Text style={styles.titleText}>Emotional Machines Channel Analysis (Experimental)</Text>
                 }
+                {this.state.video1Show &&
+                  <Text style={styles.titleText}>Emotional Machines Video Analysis (Experimental)</Text>
+                }
               </View>
               <ToggleButtonGroup
                   // value={alignment}
                   exclusive
                   // onChange={handleAlignment}
               >
+                  {/*
                   <ToggleButton value="channel" onClick={this.toggleChannelShow}>
                     <View>
                       <Image style={styles.image} source={require('../assets/images/profile-icon.png')} />
+                      <Text>Click Me</Text>
+                    </View>
+                  </ToggleButton>
+                  */}
+                  <ToggleButton value="video1" onClick={this.toggleVideo1Show}>
+                    <View>
+                      <Text>Video 1</Text>
+                      <Image style={styles.image} source={require('../assets/images/YTPlayButton.png')} />
                       <Text>Click Me</Text>
                     </View>
                   </ToggleButton>
@@ -190,8 +211,8 @@ class LandingSwitchingPage extends Component {
               {this.state.linking &&
                 <LinkingPage />
               }
-              {this.state.channelShow &&
-                <ChannelAnalysisPage />
+              {this.state.video1Show &&
+                <Video1AnalysisPage />
               }
           </View>
       </View>

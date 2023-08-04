@@ -38,6 +38,8 @@ export const checkStillCharting = './check_still_charting'
 export const checkStillAnalysingChannel = './checkStillAnalysingChannel'
 export const getPreviousChannelResult = './getPreviousChannelResult'
 export const channelUrl = './channelUrl'
+export const youtubeRetrieveChannelResults = './youtube-retrieve-channel-results'
+export const commentsChatgptQuestioning = './comments-chatgpt-questioning'
 
 export const api = axios.create({
   baseURL: backendUrl

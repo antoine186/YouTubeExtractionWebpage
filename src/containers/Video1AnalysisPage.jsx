@@ -1,21 +1,22 @@
 import React, { Component } from 'react'
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Icon, Image } from 'react-native'
 import styles from '../utils/style_guide/MainWebpageStyle'
-import { api, checkStillAnalysingChannel, getPreviousChannelResult, channelUrl } from '../utils/backend_configuration/BackendConfig'
+import { api, checkStillAnalysingChannel, getPreviousChannelResult, channelUrl, youtubeRetrieveChannelResults } from '../utils/backend_configuration/BackendConfig'
 import SearchArticlesResultTable from '../components/molecules/SearchArticlesResultTable'
 import ArticlesResultTableDataWrangler from './search_helper_functions/ArticlesResultTableDataWrangler'
 import ClipLoader from 'react-spinners/ClipLoader'
 import SearchOverallEmoResultTable from '../components/molecules/SearchOverallEmoResultTable'
 import EmoEngagementStringFormatter from './search_helper_functions/EmoEngagementStringFormatter'
-import EmoSearchBasicResultCard from '../components/molecules/EmoSearchBasicResultCard'
+import YTCommentsBasicResultCard from '../components/molecules/YTCommentsBasicResultCard'
 import { connect } from 'react-redux'
 import EmoSearchOverallResultCard from '../components/molecules/EmoSearchOverallResultCard'
 import { setAnonSession } from '../store/Slices/AnonSessionSlice'
 import CheckEmptyObject from '../utils/CheckEmptyObject'
 import GenerateRandomString from '../utils/GenerateRandomString'
 import { setSearchTimeoutState } from '../store/Slices/SearchTimeoutSlice'
+import ReaverageEmoBreakdown from '../utils/ReaverageEmoBreakdown'
 
-class ChannelAnalysisPage extends Component {
+class Video1AnalysisPage extends Component {
   constructor (props) {
     super(props)
 
@@ -29,12 +30,28 @@ class ChannelAnalysisPage extends Component {
     this.state = {
       channelInput: '',
       channelOverallEmoResultTableData: [],
-      channelArticlesResultTableData: [],
+      channelYTCommentsResultTableData: [],
       noResultsToReturn: false,
       noPreviousResults: true,
       channelInitiated: false,
       anyResponseFromServer: false,
-      usernameToUse
+      usernameToUse,
+      videoNumber: 1,
+      videoEmbeddedUrl: '',
+      topNAnger: '',
+      topNDisgust: '',
+      topNFear: '',
+      topNJoy: '',
+      topNNeutral: '',
+      topNSadness: '',
+      topNSurprise: '',
+      top_n_anger_average_emo_breakdown: '',
+      top_n_disgust_average_emo_breakdown: '',
+      top_n_fear_average_emo_breakdown: '',
+      top_n_joy_average_emo_breakdown: '',
+      top_n_neutral_average_emo_breakdown: '',
+      top_n_sadness_average_emo_breakdown: '',
+      top_n_surprise_average_emo_breakdown: ''
     }
 
     const query = new URLSearchParams(window.location.search)
@@ -43,44 +60,18 @@ class ChannelAnalysisPage extends Component {
       console.log('Didnt manage to add 1 dollar')
     }
 
-    api.post(checkStillAnalysingChannel, {
+    api.post(youtubeRetrieveChannelResults, {
       username: usernameToUse
     }, {
       withCredentials: true
     }
     ).then(response => {
       if (response.data.operation_success) {
-        console.log('Still analysing channel')
+        this.setState({ channelInitiated: false })
+        this.setState({ noPreviousResults: false })
 
-        console.log('Triggered timeout recovery')
-        api.post(getPreviousChannelResult, {
-          username: usernameToUse
-        }, {
-          withCredentials: true
-        }
-        ).then(response => {
-          if (response.data.operation_success) {
-            console.log('Previous channel analysis returned something!')
-            console.log(response.data.responsePayload.previous_channel_result)
-            this.setState({ channelInput: response.data.responsePayload.previous_search_result.search_input })
-            this.setState({ noPreviousResults: false })
-            this.populateOverallEmoResultTable(response.data.responsePayload.previous_channel_result)
-            this.populateArticlesResultTable(response.data.responsePayload.previous_channel_result)
-          } else {
-            console.log('Search failed for an internal reason')
-            this.setState({ noResultsToReturn: true })
-            this.setState({ channelInitiated: false })
-            this.setState({ noPreviousResults: true })
-          }
-        }
-        ).catch(error => {
-          console.log('No previous search results')
-          this.setState({ noResultsToReturn: true })
-          this.setState({ channelInitiated: false })
-          this.setState({ noPreviousResults: true })
-        })
-
-        this.setState({ channelInitiated: true })
+        // this.populateOverallEmoResultTable(response.data.responsePayload.previous_search_result)
+        this.populateCommentsResultTable(response.data.responsePayload)
       }
     }
     ).catch(error => {
@@ -131,7 +122,7 @@ class ChannelAnalysisPage extends Component {
         this.setState({ channelInitiated: false })
         this.setState({ noPreviousResults: false })
         this.populateOverallEmoResultTable(response.data)
-        this.populateArticlesResultTable(response.data)
+        this.populateCommentsResultTable(response.data)
         this.forceUpdate()
       } else {
         this.setState({ noResultsToReturn: true })
@@ -145,7 +136,7 @@ class ChannelAnalysisPage extends Component {
       }
 
       console.log('Triggered timeout recovery')
-      api.post(getPreviousChannelResult, {
+      api.post(youtubeRetrieveChannelResults, {
         username: this.state.usernameToUse
       }, {
         withCredentials: true
@@ -156,7 +147,7 @@ class ChannelAnalysisPage extends Component {
           this.setState({ channelInput: response.data.responsePayload.previous_search_result.search_input })
           this.setState({ noPreviousResults: false })
           this.populateOverallEmoResultTable(response.data.responsePayload.previous_search_result)
-          this.populateArticlesResultTable(response.data.responsePayload.previous_search_result)
+          this.populateCommentsResultTable(response.data.responsePayload.previous_search_result)
         } else {
           console.log('Search failed for an internal reason')
           this.setState({ noResultsToReturn: true })
@@ -187,34 +178,52 @@ class ChannelAnalysisPage extends Component {
     this.setState({ searchingInitiated: false })
   }
 
-  populateArticlesResultTable (data) {
-    const searchArticlesResultTableData = []
+  populateCommentsResultTable (data) {
+    const channelYTCommentsResultTableData = []
 
-    const articlesResultsDict = ArticlesResultTableDataWrangler(data)
+    const articlesResultsTopVideoDict = ArticlesResultTableDataWrangler(data.top_5_videos[this.state.videoNumber - 1])
 
-    searchArticlesResultTableData.push(
-      articlesResultsDict.Happiest,
-      articlesResultsDict.Angriest,
-      articlesResultsDict.Disgusted,
-      articlesResultsDict.Fearful,
-      articlesResultsDict.Neutral,
-      articlesResultsDict.Sadest,
-      articlesResultsDict.Surprised
+    channelYTCommentsResultTableData.push(
+      articlesResultsTopVideoDict.Happiest,
+      articlesResultsTopVideoDict.Angriest,
+      articlesResultsTopVideoDict.Disgusted,
+      articlesResultsTopVideoDict.Fearful,
+      articlesResultsTopVideoDict.Neutral,
+      articlesResultsTopVideoDict.Sadest,
+      articlesResultsTopVideoDict.Surprised
     )
 
-    this.setState({ searchArticlesResultTableData })
+    let xyz = ReaverageEmoBreakdown(data.top_5_top_n_anger[this.state.videoNumber - 1])
+
+    let top_n_anger_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_5_top_n_anger[this.state.videoNumber - 1]).emo_breakdown)
+    let top_n_disgust_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_5_top_n_disgust[this.state.videoNumber - 1]).emo_breakdown)
+    let top_n_fear_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_5_top_n_fear[this.state.videoNumber - 1]).emo_breakdown)
+    let top_n_joy_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_5_top_n_joy[this.state.videoNumber - 1]).emo_breakdown)
+    let top_n_neutral_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_5_top_n_neutral[this.state.videoNumber - 1]).emo_breakdown)
+    let top_n_sadness_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_5_top_n_sadness[this.state.videoNumber - 1]).emo_breakdown)
+    let top_n_surprise_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_5_top_n_surprise[this.state.videoNumber - 1]).emo_breakdown)
+
+    console.log(top_n_anger_average_emo_breakdown)
+
+    this.setState({ top_n_anger_average_emo_breakdown })
+    this.setState({ top_n_disgust_average_emo_breakdown })
+    this.setState({ top_n_fear_average_emo_breakdown })
+    this.setState({ top_n_joy_average_emo_breakdown })
+    this.setState({ top_n_neutral_average_emo_breakdown })
+    this.setState({ top_n_sadness_average_emo_breakdown })
+    this.setState({ top_n_surprise_average_emo_breakdown })
+
+    this.setState({ topNAnger: data.top_5_top_n_anger[this.state.videoNumber - 1] })
+    this.setState({ topNDisgust: data.top_5_top_n_disgust[this.state.videoNumber - 1] })
+    this.setState({ topNFear: data.top_5_top_n_fear[this.state.videoNumber - 1] })
+    this.setState({ topNJoy: data.top_5_top_n_joy[this.state.videoNumber - 1] })
+    this.setState({ topNNeutral: data.top_5_top_n_neutral[this.state.videoNumber - 1] })
+    this.setState({ topNSadness: data.top_5_top_n_sadness[this.state.videoNumber - 1] })
+    this.setState({ topNSurprise: data.top_5_top_n_surprise[this.state.videoNumber - 1] })
+
+    this.setState({ videoEmbeddedUrl: data.top_5_videos[this.state.videoNumber - 1].url })
+    this.setState({ channelYTCommentsResultTableData })
   }
-
-  /*
-  date2String (dateArray) {
-    let dateString = ''
-
-    dateString = dateString + dateArray[1] + '/'
-    dateString = dateString + dateArray[2] + '/'
-    dateString = dateString + dateArray[0]
-
-    return dateString
-  } */
 
   render () {
     return (
@@ -245,6 +254,8 @@ class ChannelAnalysisPage extends Component {
             </View>
           </View>
           <br></br>
+          <br></br>
+          {/*
           {!this.state.channelInitiated &&
             <View style={styles.subcontainer}>
               <br></br>
@@ -295,36 +306,71 @@ class ChannelAnalysisPage extends Component {
               No results retrieved for this YouTube channel...
             </Text>
           }
+
+          */}
+
+          <br></br>
+          <br></br>
+
+          {!this.state.channelInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults &&
+            <iframe
+                width="560"
+                height="315"
+                src={this.state.videoEmbeddedUrl}
+                title="YouTube video player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen></iframe>
+          }
+
+          <br></br>
+          <br></br>
+
           {!this.state.channelInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults &&
           <View>
-            <EmoSearchOverallResultCard resultData={this.state.channelOverallEmoResultTableData} />
-            <EmoSearchBasicResultCard
+            <br></br>
+            {/*<EmoSearchOverallResultCard resultData={this.state.channelOverallEmoResultTableData} />*/}
+            <YTCommentsBasicResultCard
               emoIcon={'😃'}
-              articleData={this.state.channelArticlesResultTableData[0]}
+              commentsData={this.state.channelYTCommentsResultTableData[0]}
+              topNComments={this.state.topNJoy}
+              topNEmoBreakdown={this.state.top_n_joy_average_emo_breakdown}
             />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'😡'}
-              articleData={this.state.channelArticlesResultTableData[1]}
+              commentsData={this.state.channelYTCommentsResultTableData[1]}
+              topNComments={this.state.topNAnger}
+              topNEmoBreakdown={this.state.top_n_anger_average_emo_breakdown}
             />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'🤢'}
-              articleData={this.state.channelArticlesResultTableData[2]}
+              commentsData={this.state.channelYTCommentsResultTableData[2]}
+              topNComments={this.state.topNDisgust}
+              topNEmoBreakdown={this.state.top_n_disgust_average_emo_breakdown}
             />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'😱'}
-              articleData={this.state.channelArticlesResultTableData[3]}
+              commentsData={this.state.channelYTCommentsResultTableData[3]}
+              topNComments={this.state.topNFear}
+              topNEmoBreakdown={this.state.top_n_fear_average_emo_breakdown}
             />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'😐'}
-              articleData={this.state.channelArticlesResultTableData[4]}
+              commentsData={this.state.channelYTCommentsResultTableData[4]}
+              topNComments={this.state.topNNeutral}
+              topNEmoBreakdown={this.state.top_n_neutral_average_emo_breakdown}
             />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'😢'}
-              articleData={this.state.channelArticlesResultTableData[5]}
+              commentsData={this.state.channelYTCommentsResultTableData[5]}
+              topNComments={this.state.topNSadness}
+              topNEmoBreakdown={this.state.top_n_sadness_average_emo_breakdown}
             />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'😯'}
-              articleData={this.state.channelArticlesResultTableData[6]}
+              commentsData={this.state.channelYTCommentsResultTableData[6]}
+              topNComments={this.state.topNSurprise}
+              topNEmoBreakdown={this.state.top_n_surprise_average_emo_breakdown}
             />
           </View>
           }
@@ -347,4 +393,4 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ChannelAnalysisPage)
+export default connect(mapStateToProps, mapDispatchToProps)(Video1AnalysisPage)

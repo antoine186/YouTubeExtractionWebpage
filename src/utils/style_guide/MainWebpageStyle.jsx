@@ -89,7 +89,7 @@ function returnStyles () {
       height: 2.5 * sizeScaler * vw,
       width: 2.5 * sizeScaler * vw
     },
-    articleCard: {
+    commentsCard: {
       marginBottom: 0.5 * vw,
       width: 25 * sizeScaler * vw
     },
@@ -129,6 +129,9 @@ function returnStyles () {
     },
     errorText: {
       color: '#DC143C'
+    },
+    bulletPoints: {
+      listStyleType: "none"
     }
   })
 

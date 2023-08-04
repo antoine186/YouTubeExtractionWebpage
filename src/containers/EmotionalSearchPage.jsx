@@ -10,7 +10,7 @@ import ArticlesResultTableDataWrangler from './search_helper_functions/ArticlesR
 import ClipLoader from 'react-spinners/ClipLoader'
 import SearchOverallEmoResultTable from '../components/molecules/SearchOverallEmoResultTable'
 import EmoEngagementStringFormatter from './search_helper_functions/EmoEngagementStringFormatter'
-import EmoSearchBasicResultCard from '../components/molecules/EmoSearchBasicResultCard'
+import YTCommentsBasicResultCard from '../components/molecules/YTCommentsBasicResultCard'
 import { connect } from 'react-redux'
 import EmoSearchOverallResultCard from '../components/molecules/EmoSearchOverallResultCard'
 import { setAnonSession } from '../store/Slices/AnonSessionSlice'
@@ -433,31 +433,31 @@ class EmotionalSearchPage extends Component {
           {!this.state.searchingInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults &&
           <View>
             <EmoSearchOverallResultCard resultData={this.state.searchOverallEmoResultTableData} />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'😃'}
               articleData={this.state.searchArticlesResultTableData[0]}
             />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'😡'}
               articleData={this.state.searchArticlesResultTableData[1]}
             />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'🤢'}
               articleData={this.state.searchArticlesResultTableData[2]}
             />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'😱'}
               articleData={this.state.searchArticlesResultTableData[3]}
             />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'😐'}
               articleData={this.state.searchArticlesResultTableData[4]}
             />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'😢'}
               articleData={this.state.searchArticlesResultTableData[5]}
             />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'😯'}
               articleData={this.state.searchArticlesResultTableData[6]}
             />

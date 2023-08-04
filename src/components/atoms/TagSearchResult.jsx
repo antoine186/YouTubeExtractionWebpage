@@ -2,7 +2,7 @@ import React from 'react'
 import styles from '../../utils/style_guide/MainWebpageStyle'
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Icon, Image } from 'react-native'
 import EmoSearchOverallResultCard from '../molecules/EmoSearchOverallResultCard'
-import EmoSearchBasicResultCard from '../molecules/EmoSearchBasicResultCard'
+import YTCommentsBasicResultCard from '../molecules/YTCommentsBasicResultCard'
 import { connect } from 'react-redux'
 import ReplaceAll from '../../utils/ReplaceAll'
 
@@ -55,31 +55,31 @@ class TagSearchResult extends React.Component {
           {!this.state.noResultsToReturn && !this.state.stillTagging &&
           <View>
             <EmoSearchOverallResultCard resultData={this.state.searchOverallEmoResultTableData} />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'😃'}
               articleData={this.state.searchArticlesResultTableData[0]}
             />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'😡'}
               articleData={this.state.searchArticlesResultTableData[1]}
             />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'🤢'}
               articleData={this.state.searchArticlesResultTableData[2]}
             />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'😱'}
               articleData={this.state.searchArticlesResultTableData[3]}
             />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'😐'}
               articleData={this.state.searchArticlesResultTableData[4]}
             />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'😢'}
               articleData={this.state.searchArticlesResultTableData[5]}
             />
-            <EmoSearchBasicResultCard
+            <YTCommentsBasicResultCard
               emoIcon={'😯'}
               articleData={this.state.searchArticlesResultTableData[6]}
             />
