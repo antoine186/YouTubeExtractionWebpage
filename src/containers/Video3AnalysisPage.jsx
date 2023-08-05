@@ -12,7 +12,7 @@ import { setAnonSession } from '../store/Slices/AnonSessionSlice'
 import CheckEmptyObject from '../utils/CheckEmptyObject'
 import ReaverageEmoBreakdown from '../utils/ReaverageEmoBreakdown'
 
-class Video1AnalysisPage extends Component {
+class Video3AnalysisPage extends Component {
   constructor (props) {
     super(props)
 
@@ -32,7 +32,7 @@ class Video1AnalysisPage extends Component {
       channelInitiated: false,
       anyResponseFromServer: false,
       usernameToUse,
-      videoNumber: 1,
+      videoNumber: 3,
       videoEmbeddedUrl: '',
       topNAnger: '',
       topNDisgust: '',
@@ -364,4 +364,4 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Video1AnalysisPage)
+export default connect(mapStateToProps, mapDispatchToProps)(Video3AnalysisPage)

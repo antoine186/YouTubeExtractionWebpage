@@ -1,7 +1,7 @@
 import React from 'react'
 import styles from '../../utils/style_guide/MainWebpageStyle'
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Icon, Image } from 'react-native'
-import EmoSearchOverallResultCard from '../molecules/EmoSearchOverallResultCard'
+import EmoSearchOverallResultCard from '../molecules/YTCommentsOverallResultCard'
 import YTCommentsBasicResultCard from '../molecules/YTCommentsBasicResultCard'
 import { connect } from 'react-redux'
 import ReplaceAll from '../../utils/ReplaceAll'

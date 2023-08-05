@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography'
 import Collapse from '@mui/material/Collapse'
 const { vw, vh, vmin, vmax } = require('react-native-viewport-units')
 
-class EmoSearchOverallResultCard extends Component {
+class YTCommentsOverallResultCard extends Component {
   constructor (props) {
     super(props)
 
@@ -84,4 +84,4 @@ class EmoSearchOverallResultCard extends Component {
   }
 }
 
-export default EmoSearchOverallResultCard
+export default YTCommentsOverallResultCard

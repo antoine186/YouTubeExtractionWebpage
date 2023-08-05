@@ -96,18 +96,12 @@ class YTCommentsBasicResultCard extends Component {
             <Card style={styles.commentsCard}>
                 <CardContent>
                     <Typography sx={{ fontSize: 1.5 * this.state.sizeScaler * vh }} color="text.primary" gutterBottom>
-                        Most {this.state.emoIcon} comments (Beta - will misinterpret sarcasm)
+                        Most {this.state.emoIcon} opinions
                     </Typography>
                     <Typography variant="h5" sx={{ fontSize: 1.6 * this.state.sizeScaler * vh }}>
                         {this.state.commentsData !== undefined &&
                             <a href={this.state.commentsData.url} style={{ color: '#808B96' }}>{this.state.commentsData.title}</a>
                         }
-                    </Typography>
-                    <br></br>
-                    <Typography variant="h5" sx={{ fontSize: 1.6 * this.state.sizeScaler * vh }}>
-                            {this.state.commentsData !== undefined &&
-                                this.state.topNEmoBreakdown
-                            }
                     </Typography>
                     <Typography sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }} color="text.primary">
                         {this.state.commentsData !== undefined &&
@@ -116,8 +110,17 @@ class YTCommentsBasicResultCard extends Component {
                     </Typography>
                 </CardContent>
                 <CardActions>
-                    <Button size="small" onClick={this.handleSubmit}>PLEASE TELL ME MORE ABOUT MY AUDIENCE!</Button>
-                    <Button size="small" onClick={this.handleClose}>CLOSE</Button>
+                    <Button size="small" onClick={this.handleSubmit}>
+                      WHAT DOES MY AUDIENCE THINK?
+                    </Button>
+                    {this.state.commentsSummaryExpand &&
+                        <Button size="small" onClick={this.handleClose}>CLOSE</Button>
+                    }
+                </CardActions>
+                <CardActions>
+                  {!this.state.promptingChatGpt && this.state.chatGptReply !== '' &&
+                    <Button>(Click me again for more insight)</Button>
+                  }
                 </CardActions>
                 <Collapse in={this.state.commentsSummaryExpand} timeout="auto" unmountOnExit>
                     <CardContent>
@@ -140,16 +143,88 @@ class YTCommentsBasicResultCard extends Component {
                         </Typography>
                     </CardContent>
                 </Collapse>
+
+                <CardActions>
+                    {this.state.emoIcon === '😃' &&
+                      <Button size="small" onClick={this.handleSubmit}>
+                        HOW DO I MAKE CONTENT THAT MAKES MY AUDIENCE HAPPIER?
+                      </Button>
+                    }
+                    {this.state.emoIcon === '😡' &&
+                      <Button
+                        size="small" 
+                        onClick={this.handleSubmit}
+                        buttonStyle={{ justifyContent: 'flex-end' }}>
+                        HOW CAN I HARNESS MY AUDIENCE&apos;S ANGER TO MAKE MORE RELEVANT, USEFUL CONTENT?
+                      </Button>
+                    }
+                    {this.state.emoIcon === '🤢' &&
+                      <Button size="small" onClick={this.handleSubmit}>
+                        HOW CAN I FURTHER PROVOKE MY AUDIENCE&apos;S MORBID CURIOSITY?
+                      </Button>
+                    }
+                    {this.state.emoIcon === '😢' &&
+                      <Button size="small" onClick={this.handleSubmit}>
+                        HOW DOES SADNESS INFORM WHAT MY AUDIENCE DEEPLY CARES ABOUT?
+                      </Button>
+                    }
+                    {this.state.emoIcon === '😱' &&
+                      <Button size="small" onClick={this.handleSubmit}>
+                        HOW CAN I JUMPSCARE AND GRIP MY AUDIENCE?
+                      </Button>
+                    }
+                    {this.state.emoIcon === '😯' &&
+                      <Button size="small" onClick={this.handleSubmit}>
+                        HOW CAN I FURTHER SURPRISE AND AMAZE MY AUDIENCE?
+                      </Button>
+                    }
+                    {this.state.emoIcon === '😐' &&
+                      <Button size="small" onClick={this.handleSubmit}>
+                        HOW CAN I WIN OVER AUDIENCE WITH LUKEWARM REACTIONS?
+                      </Button>
+                    }
+                    {this.state.commentsSummaryExpand &&
+                        <Button size="small" onClick={this.handleClose}>CLOSE</Button>
+                    }
+                </CardActions>
+                <CardActions>
+                  {!this.state.promptingChatGpt && this.state.chatGptReply !== '' &&
+                    <Button>(Click me again)</Button>
+                  }
+                </CardActions>
+                <Collapse in={this.state.commentsSummaryExpand} timeout="auto" unmountOnExit>
+                    <CardContent>
+                        {this.state.promptingChatGpt &&
+                            <CardActions>
+                                <Button size="small">AI Loading Answer...</Button>
+                            </CardActions>
+                        }
+                        <Typography paragraph sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }}>
+                            {!this.state.promptingChatGpt && this.state.chatGptReply !== '' &&
+                                <Typography sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }} color="text.secondary" gutterBottom>
+                                    What made viewers {this.state.emoIcon}:
+                                </Typography>
+                            }
+                            {!this.state.promptingChatGpt && this.state.chatGptReply !== '' &&
+                                <View>
+                                    {this.state.chatGptReply}
+                                </View>
+                            }
+                        </Typography>
+                    </CardContent>
+                </Collapse>
+                {/*
                 <CardActions>
                     <Button size="small" onClick={() => this.setState({ commentsExpand: !this.state.commentsExpand })}>COMMENT SNIPPETS</Button>
                 </CardActions>
+                */}
                 <Collapse in={this.state.commentsExpand} timeout="auto" unmountOnExit>
                     <CardContent>
                         <Typography paragraph sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }}>
                             <Typography sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }} color="text.secondary" gutterBottom>
                                 Comment snippets
                             </Typography>
-                            {this.state.topNComments !== undefined &&
+                            {/*this.state.topNComments !== undefined &&
                             <ul style={styles.bulletPoints}>
                                 {this.state.topNComments.map(comment => (
                                     <View>
@@ -158,7 +233,7 @@ class YTCommentsBasicResultCard extends Component {
                                     </View>
                                 ))}
                             </ul>
-                            }
+                            */}
                         </Typography>
                     </CardContent>
                 </Collapse>

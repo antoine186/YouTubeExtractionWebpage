@@ -12,7 +12,7 @@ import SearchOverallEmoResultTable from '../components/molecules/SearchOverallEm
 import EmoEngagementStringFormatter from './search_helper_functions/EmoEngagementStringFormatter'
 import YTCommentsBasicResultCard from '../components/molecules/YTCommentsBasicResultCard'
 import { connect } from 'react-redux'
-import EmoSearchOverallResultCard from '../components/molecules/EmoSearchOverallResultCard'
+import EmoSearchOverallResultCard from '../components/molecules/YTCommentsOverallResultCard'
 import { setAnonSession } from '../store/Slices/AnonSessionSlice'
 import CheckEmptyObject from '../utils/CheckEmptyObject'
 import GenerateRandomString from '../utils/GenerateRandomString'
