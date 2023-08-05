@@ -74,11 +74,16 @@ class YTCommentsBasicResultCard extends Component {
       withCredentials: true
     }
     ).then(response => {
-      this.setState({ chatGptReply: response.data.responsePayload.ChatGptReply })
-      this.setState({ promptingChatGpt: !this.state.promptingChatGpt })
+      console.log(this.state.promptingChatGpt)
+      if (this.state.promptingChatGpt) {
+        this.setState({ chatGptReply: response.data.responsePayload.ChatGptReply })
+        this.setState({ promptingChatGpt: !this.state.promptingChatGpt })
+      }
     }
     ).catch(error => {
-      this.setState({ promptingChatGpt: !this.state.promptingChatGpt })
+      if (this.state.promptingChatGpt) {
+        this.setState({ promptingChatGpt: !this.state.promptingChatGpt })
+      }
     })
   }
 
@@ -87,6 +92,8 @@ class YTCommentsBasicResultCard extends Component {
 
     if (this.state.commentsSummaryExpand) {
       this.setState({ commentsSummaryExpand: !this.state.commentsSummaryExpand })
+      this.setState({ chatGptReply: '' })
+      this.setState({ promptingChatGpt: false })
     }
   }
 
@@ -110,11 +117,13 @@ class YTCommentsBasicResultCard extends Component {
                     </Typography>
                 </CardContent>
                 <CardActions>
-                    <Button size="small" onClick={this.handleSubmit}>
-                      WHAT DOES MY AUDIENCE THINK?
-                    </Button>
+                    {!this.state.promptingChatGpt &&
+                      <Button size="small" onClick={this.handleSubmit} style={{ textAlign: 'left' }}>
+                        WHAT DOES MY AUDIENCE THINK?
+                      </Button>
+                    }
                     {this.state.commentsSummaryExpand &&
-                        <Button size="small" onClick={this.handleClose}>CLOSE</Button>
+                        <Button size="small" onClick={this.handleClose} style={{ textAlign: 'left' }}>CLOSE</Button>
                     }
                 </CardActions>
                 <CardActions>
@@ -126,7 +135,7 @@ class YTCommentsBasicResultCard extends Component {
                     <CardContent>
                         {this.state.promptingChatGpt &&
                             <CardActions>
-                                <Button size="small">AI Loading Answer...</Button>
+                                <Button size="small" style={{ textAlign: 'left' }}>AI Loading Answer...</Button>
                             </CardActions>
                         }
                         <Typography paragraph sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }}>
@@ -146,45 +155,46 @@ class YTCommentsBasicResultCard extends Component {
 
                 <CardActions>
                     {this.state.emoIcon === '😃' &&
-                      <Button size="small" onClick={this.handleSubmit}>
+                      <Button size="small" onClick={this.handleSubmit} style={{ textAlign: 'left' }}>
                         HOW DO I MAKE CONTENT THAT MAKES MY AUDIENCE HAPPIER?
                       </Button>
                     }
                     {this.state.emoIcon === '😡' &&
                       <Button
-                        size="small" 
+                        size="small"
                         onClick={this.handleSubmit}
-                        buttonStyle={{ justifyContent: 'flex-end' }}>
-                        HOW CAN I HARNESS MY AUDIENCE&apos;S ANGER TO MAKE MORE RELEVANT, USEFUL CONTENT?
+                        style={{ textAlign: 'left' }}
+                        buttonStyle={{ paddingLeft: '0px' }}>
+                          HOW CAN I HARNESS MY AUDIENCE&apos;S ANGER TO MAKE MORE RELEVANT, USEFUL CONTENT?
                       </Button>
                     }
                     {this.state.emoIcon === '🤢' &&
-                      <Button size="small" onClick={this.handleSubmit}>
+                      <Button size="small" onClick={this.handleSubmit} style={{ textAlign: 'left' }}>
                         HOW CAN I FURTHER PROVOKE MY AUDIENCE&apos;S MORBID CURIOSITY?
                       </Button>
                     }
                     {this.state.emoIcon === '😢' &&
-                      <Button size="small" onClick={this.handleSubmit}>
+                      <Button size="small" onClick={this.handleSubmit} style={{ textAlign: 'left' }}>
                         HOW DOES SADNESS INFORM WHAT MY AUDIENCE DEEPLY CARES ABOUT?
                       </Button>
                     }
                     {this.state.emoIcon === '😱' &&
-                      <Button size="small" onClick={this.handleSubmit}>
+                      <Button size="small" onClick={this.handleSubmit} style={{ textAlign: 'left' }}>
                         HOW CAN I JUMPSCARE AND GRIP MY AUDIENCE?
                       </Button>
                     }
                     {this.state.emoIcon === '😯' &&
-                      <Button size="small" onClick={this.handleSubmit}>
+                      <Button size="small" onClick={this.handleSubmit} style={{ textAlign: 'left' }}>
                         HOW CAN I FURTHER SURPRISE AND AMAZE MY AUDIENCE?
                       </Button>
                     }
                     {this.state.emoIcon === '😐' &&
-                      <Button size="small" onClick={this.handleSubmit}>
+                      <Button size="small" onClick={this.handleSubmit} style={{ textAlign: 'left' }}>
                         HOW CAN I WIN OVER AUDIENCE WITH LUKEWARM REACTIONS?
                       </Button>
                     }
                     {this.state.commentsSummaryExpand &&
-                        <Button size="small" onClick={this.handleClose}>CLOSE</Button>
+                        <Button size="small" onClick={this.handleClose} style={{ textAlign: 'left' }}>CLOSE</Button>
                     }
                 </CardActions>
                 <CardActions>
