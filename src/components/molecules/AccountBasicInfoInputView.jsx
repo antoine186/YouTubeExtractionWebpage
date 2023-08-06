@@ -21,25 +21,17 @@ class AccountBasicInfoInputView extends React.Component {
       emailAddress: this.props.emailAddress,
       password: this.props.password,
       confirmedPassword: this.props.confirmedPassword,
-      dateBirth: this.props.dateBirth,
-      minDateOfBirth: '1900-01-01',
-      telephoneNumber: this.props.telephoneNumber,
       firstNameGrabber: this.props.firstNameGrabber,
       lastNameGrabber: this.props.lastNameGrabber,
       userEmailGrabber: this.props.userEmailGrabber,
       passwordGrabber: this.props.passwordGrabber,
       confirmedPasswordGrabber: this.props.confirmedPasswordGrabber,
-      dateBirthGrabber: this.props.dateBirthGrabber,
-      telNumberGrabber: this.props.telNumberGrabber,
       firstNameEmpty: this.props.firstNameEmpty,
       lastNameEmpty: this.props.lastNameEmpty,
-      dateBirthEmpty: this.props.dateBirthEmpty,
       emailEmpty: this.props.emailEmpty,
       emailAlreadyExists: this.props.emailAlreadyExists,
       somethingWentWrong: this.props.somethingWentWrong,
       validEmail: this.props.validEmail,
-      telephoneEmpty: this.props.telephoneEmpty,
-      validTelephone: this.props.validTelephone,
       passwordsMatch: this.props.passwordsMatch,
       passwordFormatIncorrect: this.props.passwordFormatIncorrect,
       passwordEmpty: this.props.passwordEmpty
@@ -49,9 +41,7 @@ class AccountBasicInfoInputView extends React.Component {
       AccountCreationBasicDataMock(this)
       this.setFirstName(this.state.firstName)
       this.setLastName(this.state.lastName)
-      this.mockedDateOfBirthSelected(this.state.dateBirth)
       this.setUserEmail(this.state.emailAddress)
-      this.setTelephoneNumber(this.state.telephoneNumber)
       this.setPassword(this.state.password)
       this.setConfirmedPassword(this.state.confirmedPassword)
     }
@@ -67,26 +57,9 @@ class AccountBasicInfoInputView extends React.Component {
     this.state.lastNameGrabber(lastName)
   }
 
-  dateOfBirthSelected (event) {
-    const selectedDate = new Date(event.target.value)
-    const selectedDateFormatted = DateFormatter(selectedDate)
-    this.setState({ dateBirth: selectedDateFormatted })
-    this.state.dateBirthGrabber(selectedDateFormatted)
-  }
-
-  mockedDateOfBirthSelected (dateBirth) {
-    this.setState({ dateBirth: dateBirth })
-    this.state.dateBirthGrabber(dateBirth)
-  }
-
   setUserEmail (email) {
     this.setState({ emailAddress: email })
     this.state.userEmailGrabber(email)
-  }
-
-  setTelephoneNumber (telephoneNumber) {
-    this.setState({ telephoneNumber })
-    this.state.telNumberGrabber(telephoneNumber)
   }
 
   setPassword (password) {
@@ -147,24 +120,6 @@ class AccountBasicInfoInputView extends React.Component {
           </View>
         }
 
-        <Text style={styles.text}>
-          Date of birth
-        </Text>
-        <br></br>
-        <CappedDatePicker
-          minDate={this.state.minDateOfBirth}
-          onChange={this.dateOfBirthSelected.bind(this)}
-          defaultDate={this.state.dateBirth}
-        />
-        <br></br>
-        {this.props.dateBirthEmpty &&
-          <View>
-            <Text style={styles.errorText}>
-              Please select your date of birth *
-            </Text>
-            <br></br>
-          </View>
-        }
         <View style={styles.inputView}>
           <TextInput
             style={styles.textInput}
@@ -195,30 +150,6 @@ class AccountBasicInfoInputView extends React.Component {
           <View>
             <Text style={styles.errorText}>
               The account associated with your email already exists *
-            </Text>
-            <br></br>
-          </View>
-        }
-        <PhoneInput
-          placeholder="Telephone number"
-          defaultCountry="US"
-          value={this.state.telephoneNumber}
-          onChange={telephoneNumber => this.setTelephoneNumber(telephoneNumber)}
-          inputComponent={TextInput}
-        />
-        <br></br>
-        {this.props.telephoneEmpty &&
-          <View>
-            <Text style={styles.errorText}>
-              Please fill in your telephone number *
-            </Text>
-            <br></br>
-          </View>
-        }
-        {!this.props.validTelephone &&
-          <View>
-            <Text style={styles.errorText}>
-              Please enter a valid telephone number *
             </Text>
             <br></br>
           </View>
@@ -279,9 +210,7 @@ AccountBasicInfoInputView.propTypes = {
   firstName: PropTypes.string,
   lastName: PropTypes.string,
   emailAddress: PropTypes.string,
-  password: PropTypes.string,
-  dateBirth: PropTypes.string,
-  telephoneNumber: PropTypes.string
+  password: PropTypes.string
 }
 
 AccountBasicInfoInputView.defaultProps = {

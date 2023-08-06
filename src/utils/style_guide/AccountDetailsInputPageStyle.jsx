@@ -57,7 +57,10 @@ function returnStyles () {
     textInput: {
       // height: 10 * sizeScaler * vw,
       height: '100%',
-      width: '100%'
+      width: '100%',
+      flex: 1,
+      padding: 0.5 * vw,
+      marginLeft: 1 * vw
     },
     textButton: {
       height: 1.5 * sizeScaler * vw,

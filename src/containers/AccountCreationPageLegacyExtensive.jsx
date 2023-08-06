@@ -27,15 +27,34 @@ class AccountCreationPage extends React.Component {
       emailAddress: this.props.emailAddress,
       password: this.props.password,
       confirmedPassword: this.props.confirmedPassword,
+      dateBirth: this.props.dateBirth,
+      telephoneNumber: this.props.telephoneNumber,
+      telephoneAreaCode: this.props.telephoneAreaCode,
+      selectedCountryName: this.props.selectedCountryName,
+      selectedCountryCode: this.props.selectedCountryCode,
+      selectedStateCode: this.props.selectedStateCode,
+      selectedStateName: this.props.selectedStateName,
+      selectedCityName: this.props.selectedCityName,
+      addressLine1: this.props.addressLine1,
+      addressLine2: this.props.addressLine2,
+      zipCode: this.props.zipCode,
       firstNameEmpty: false,
       lastNameEmpty: false,
       emailEmpty: false,
       emailAlreadyExists: false,
       somethingWentWrong: false,
       validEmail: true,
+      telephoneEmpty: false,
+      validTelephone: true,
       passwordEmpty: false,
       passwordsMatch: true,
       passwordFormatIncorrect: false,
+      dateBirthEmpty: false,
+      addressLine1Empty: false,
+      countryEmpty: false,
+      stateEmpty: false,
+      cityEmpty: false,
+      zipCodeEmpty: false,
       goToPayment: false,
       errorCreateStripeCustomer: false
     }
@@ -63,6 +82,40 @@ class AccountCreationPage extends React.Component {
     this.setState({ confirmedPassword: password })
   }
 
+  dateBirthGrabber (dateBirth) {
+    this.setState({ dateBirth })
+  }
+
+  telNumberGrabber (telephoneNumber) {
+    this.setState({ telephoneNumber })
+  }
+
+  selectedCountryGrabber (selectedCountryName, selectedCountryCode) {
+    this.setState({ selectedCountryName })
+    this.setState({ selectedCountryCode })
+  }
+
+  selectedStateGrabber (selectedStateName, selectedStateCode) {
+    this.setState({ selectedStateName })
+    this.setState({ selectedStateCode })
+  }
+
+  selectedCityGrabber (selectedCityName) {
+    this.setState({ selectedCityName })
+  }
+
+  addressLine1Grabber (addressLine1) {
+    this.setState({ addressLine1 })
+  }
+
+  addressLine2Grabber (addressLine2) {
+    this.setState({ addressLine2 })
+  }
+
+  zipCodeGrabber (zipCode) {
+    this.setState({ zipCode })
+  }
+
   errorCreateStripeCustomerGrabber (error) {
     this.setState({ errorCreateStripeCustomer: error })
   }
@@ -73,6 +126,7 @@ class AccountCreationPage extends React.Component {
 
   handleSubmit () {
     let handleSubmitProceed = true
+    let parseTelephoneNumberObject
 
     if (this.state.firstName === undefined) {
       handleSubmitProceed = false
@@ -88,6 +142,13 @@ class AccountCreationPage extends React.Component {
       this.setState({ lastNameEmpty: false })
     }
 
+    if (this.state.dateBirth === undefined) {
+      handleSubmitProceed = false
+      this.setState({ dateBirthEmpty: true })
+    } else {
+      this.setState({ dateBirthEmpty: false })
+    }
+
     if (this.state.emailAddress === undefined) {
       handleSubmitProceed = false
       this.setState({ emailEmpty: true })
@@ -100,6 +161,22 @@ class AccountCreationPage extends React.Component {
       }
 
       this.setState({ emailEmpty: false })
+    }
+
+    if (this.state.telephoneNumber === undefined) {
+      handleSubmitProceed = false
+      this.setState({ telephoneEmpty: true })
+    } else {
+      if (!isValidPhoneNumber(this.state.telephoneNumber)) {
+        handleSubmitProceed = false
+        this.setState({ validTelephone: false })
+      } else {
+        this.setState({ validTelephone: true })
+
+        parseTelephoneNumberObject = TelephoneNumberSplitter(this.state.telephoneNumber)
+      }
+
+      this.setState({ telephoneEmpty: false })
     }
 
     if (this.state.password === undefined) {
@@ -129,8 +206,47 @@ class AccountCreationPage extends React.Component {
       this.setState({ passwordEmpty: false })
     }
 
+    if (this.state.addressLine1 === undefined) {
+      handleSubmitProceed = false
+      this.setState({ addressLine1Empty: true })
+    } else {
+      this.setState({ addressLine1Empty: false })
+    }
+
+    if (this.state.addressLine2 === undefined) {
+      this.setState({ addressLine2: '' })
+    }
+
+    if (this.state.selectedCountryName === undefined) {
+      handleSubmitProceed = false
+      this.setState({ countryEmpty: true })
+    } else {
+      this.setState({ countryEmpty: false })
+    }
+
+    if (this.state.selectedStateName === undefined) {
+      handleSubmitProceed = false
+      this.setState({ stateEmpty: true })
+    } else {
+      this.setState({ stateEmpty: false })
+    }
+
+    if (this.state.selectedCityName === undefined) {
+      handleSubmitProceed = false
+      this.setState({ cityEmpty: true })
+    } else {
+      this.setState({ cityEmpty: false })
+    }
+
+    if (this.state.zipCode === undefined) {
+      handleSubmitProceed = false
+      this.setState({ zipCodeEmpty: true })
+    } else {
+      this.setState({ zipCodeEmpty: false })
+    }
+
     if (handleSubmitProceed) {
-      const accountCreationData = AccountCreationStatePayloadExtract(this)
+      const accountCreationData = AccountCreationStatePayloadExtract(this, parseTelephoneNumberObject.formattedPhoneNumber, parseTelephoneNumberObject.telephoneAreaCode)
 
       api.post(basicAccountCreateUrl, {
         accountCreationData
@@ -170,15 +286,34 @@ class AccountCreationPage extends React.Component {
             userEmailGrabber={this.userEmailGrabber.bind(this)}
             passwordGrabber={this.passwordGrabber.bind(this)}
             confirmedPasswordGrabber={this.confirmedPasswordGrabber.bind(this)}
+            dateBirthGrabber={this.dateBirthGrabber.bind(this)}
+            telNumberGrabber={this.telNumberGrabber.bind(this)}
             firstNameEmpty={this.state.firstNameEmpty}
             lastNameEmpty={this.state.lastNameEmpty}
+            dateBirthEmpty={this.state.dateBirthEmpty}
             emailEmpty={this.state.emailEmpty}
             emailAlreadyExists={this.state.emailAlreadyExists}
             somethingWentWrong={this.state.somethingWentWrong}
             validEmail={this.state.validEmail}
+            telephoneEmpty={this.state.telephoneEmpty}
+            validTelephone={this.state.validTelephone}
             passwordsMatch={this.state.passwordsMatch}
             passwordFormatIncorrect={this.state.passwordFormatIncorrect}
             passwordEmpty={this.state.passwordEmpty}
+          />
+          <br></br>
+          <UserBillingAddressInputView
+            selectedCountryGrabber={this.selectedCountryGrabber.bind(this)}
+            selectedStateGrabber={this.selectedStateGrabber.bind(this)}
+            selectedCityGrabber={this.selectedCityGrabber.bind(this)}
+            addressLine1Grabber={this.addressLine1Grabber.bind(this)}
+            addressLine2Grabber={this.addressLine2Grabber.bind(this)}
+            zipCodeGrabber={this.zipCodeGrabber.bind(this)}
+            addressLine1Empty={this.state.addressLine1Empty}
+            countryEmpty={this.state.countryEmpty}
+            stateEmpty={this.state.stateEmpty}
+            cityEmpty={this.state.cityEmpty}
+            zipCodeEmpty={this.state.zipCodeEmpty}
           />
           <br></br>
           <TouchableOpacity style={styles.submitBtn} onPress={this.handleSubmit}>
