@@ -21,6 +21,12 @@ function App () {
                     <Routes>
                         <Route path="/" element={<LandingSwitchingPage />} />
                         <Route index element={<LandingSwitchingPage />} />
+                        <Route path="login" element={<Login />} />
+                        <Route path="account-create" element={<AccountCreationPage />}/>
+                        <Route path="payment" element={<PaymentPage />} />
+                        <Route path="completion" element={<Completion />}/>
+                        <Route path="forgot-password" element={<ForgotPasswordPage />} />
+                        <Route path="reset-password" element={<PasswordResetPage />} />
                     </Routes>
                 </HashRouter>
         </PersistGate>

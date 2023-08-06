@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Icon, Image, Dimensions } from 'react-native'
-import { api, commentsChatgptQuestioning } from '../../utils/backend_configuration/BackendConfig'
+import { api, commentsChatgptQuestioning, commentsChatgptEmoElaboration } from '../../utils/backend_configuration/BackendConfig'
 import styles from '../../utils/style_guide/MainWebpageStyle'
 // import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -46,7 +46,10 @@ class YTCommentsBasicResultCard extends Component {
       commentsSummaryExpand: false,
       promptingChatGpt: false,
       chatGptReply: '',
-      topNEmoBreakdown: this.props.topNEmoBreakdown
+      topNEmoBreakdown: this.props.topNEmoBreakdown,
+      emoElaborationPromptingChatGpt: false,
+      emoElaborationCommentsSummaryExpand: false,
+      emoElaborationChatGptReply: ''
     }
   }
 
@@ -94,6 +97,47 @@ class YTCommentsBasicResultCard extends Component {
       this.setState({ commentsSummaryExpand: !this.state.commentsSummaryExpand })
       this.setState({ chatGptReply: '' })
       this.setState({ promptingChatGpt: false })
+    }
+  }
+
+  handleSubmitEmoElaboration = (e) => {
+    e.preventDefault()
+
+    if (!this.state.emoElaborationCommentsSummaryExpand) {
+      this.setState({ emoElaborationCommentsSummaryExpand: !this.state.emoElaborationCommentsSummaryExpand })
+    }
+
+    this.setState({ emoElaborationPromptingChatGpt: !this.state.emoElaborationPromptingChatGpt })
+
+    const shuffledTopNComments = ArrayShuffle(this.state.topNComments)
+
+    api.post(commentsChatgptEmoElaboration, {
+      top10ShuffledComments: shuffledTopNComments.slice(0, 10),
+      emoIcon: this.state.emoIcon
+    }, {
+      withCredentials: true
+    }
+    ).then(response => {
+      console.log(this.state.emoElaborationPromptingChatGpt)
+      if (this.state.emoElaborationPromptingChatGpt) {
+        this.setState({ emoElaborationChatGptReply: response.data.responsePayload.emoElaborationChatGptReply })
+        this.setState({ emoElaborationPromptingChatGpt: !this.state.emoElaborationPromptingChatGpt })
+      }
+    }
+    ).catch(error => {
+      if (this.state.emoElaborationPromptingChatGpt) {
+        this.setState({ emoElaborationPromptingChatGpt: !this.state.emoElaborationPromptingChatGpt })
+      }
+    })
+  }
+
+  handleCloseEmoElaboration = (e) => {
+    e.preventDefault()
+
+    if (this.state.emoElaborationCommentsSummaryExpand) {
+      this.setState({ emoElaborationCommentsSummaryExpand: !this.state.emoElaborationCommentsSummaryExpand })
+      this.setState({ emoElaborationChatGptReply: '' })
+      this.setState({ emoElaborationPromptingChatGpt: false })
     }
   }
 
@@ -154,70 +198,70 @@ class YTCommentsBasicResultCard extends Component {
                 </Collapse>
 
                 <CardActions>
-                    {this.state.emoIcon === '😃' &&
-                      <Button size="small" onClick={this.handleSubmit} style={{ textAlign: 'left' }}>
+                    {this.state.emoIcon === '😃' && !this.state.emoElaborationPromptingChatGpt &&
+                      <Button size="small" onClick={this.handleSubmitEmoElaboration} style={{ textAlign: 'left' }}>
                         HOW DO I MAKE CONTENT THAT MAKES MY AUDIENCE HAPPIER?
                       </Button>
                     }
-                    {this.state.emoIcon === '😡' &&
+                    {this.state.emoIcon === '😡' && !this.state.emoElaborationPromptingChatGpt &&
                       <Button
                         size="small"
-                        onClick={this.handleSubmit}
+                        onClick={this.handleSubmitEmoElaboration}
                         style={{ textAlign: 'left' }}
                         buttonStyle={{ paddingLeft: '0px' }}>
                           HOW CAN I HARNESS MY AUDIENCE&apos;S ANGER TO MAKE MORE RELEVANT, USEFUL CONTENT?
                       </Button>
                     }
-                    {this.state.emoIcon === '🤢' &&
-                      <Button size="small" onClick={this.handleSubmit} style={{ textAlign: 'left' }}>
+                    {this.state.emoIcon === '🤢' && !this.state.emoElaborationPromptingChatGpt &&
+                      <Button size="small" onClick={this.handleSubmitEmoElaboration} style={{ textAlign: 'left' }}>
                         HOW CAN I FURTHER PROVOKE MY AUDIENCE&apos;S MORBID CURIOSITY?
                       </Button>
                     }
-                    {this.state.emoIcon === '😢' &&
-                      <Button size="small" onClick={this.handleSubmit} style={{ textAlign: 'left' }}>
+                    {this.state.emoIcon === '😢' && !this.state.emoElaborationPromptingChatGpt &&
+                      <Button size="small" onClick={this.handleSubmitEmoElaboration} style={{ textAlign: 'left' }}>
                         HOW DOES SADNESS INFORM WHAT MY AUDIENCE DEEPLY CARES ABOUT?
                       </Button>
                     }
-                    {this.state.emoIcon === '😱' &&
-                      <Button size="small" onClick={this.handleSubmit} style={{ textAlign: 'left' }}>
+                    {this.state.emoIcon === '😱' && !this.state.emoElaborationPromptingChatGpt &&
+                      <Button size="small" onClick={this.handleSubmitEmoElaboration} style={{ textAlign: 'left' }}>
                         HOW CAN I JUMPSCARE AND GRIP MY AUDIENCE?
                       </Button>
                     }
-                    {this.state.emoIcon === '😯' &&
-                      <Button size="small" onClick={this.handleSubmit} style={{ textAlign: 'left' }}>
+                    {this.state.emoIcon === '😯' && !this.state.emoElaborationPromptingChatGpt &&
+                      <Button size="small" onClick={this.handleSubmitEmoElaboration} style={{ textAlign: 'left' }}>
                         HOW CAN I FURTHER SURPRISE AND AMAZE MY AUDIENCE?
                       </Button>
                     }
-                    {this.state.emoIcon === '😐' &&
-                      <Button size="small" onClick={this.handleSubmit} style={{ textAlign: 'left' }}>
+                    {this.state.emoIcon === '😐' && !this.state.emoElaborationPromptingChatGpt &&
+                      <Button size="small" onClick={this.handleSubmitEmoElaboration} style={{ textAlign: 'left' }}>
                         HOW CAN I WIN OVER AUDIENCE WITH LUKEWARM REACTIONS?
                       </Button>
                     }
-                    {this.state.commentsSummaryExpand &&
-                        <Button size="small" onClick={this.handleClose} style={{ textAlign: 'left' }}>CLOSE</Button>
+                    {this.state.emoElaborationCommentsSummaryExpand &&
+                        <Button size="small" onClick={this.handleCloseEmoElaboration} style={{ textAlign: 'left' }}>CLOSE</Button>
                     }
                 </CardActions>
                 <CardActions>
-                  {!this.state.promptingChatGpt && this.state.chatGptReply !== '' &&
+                  {!this.state.emoElaborationPromptingChatGpt && this.state.emoElaborationChatGptReply !== '' &&
                     <Button>(Click me again)</Button>
                   }
                 </CardActions>
-                <Collapse in={this.state.commentsSummaryExpand} timeout="auto" unmountOnExit>
+                <Collapse in={this.state.emoElaborationCommentsSummaryExpand} timeout="auto" unmountOnExit>
                     <CardContent>
-                        {this.state.promptingChatGpt &&
+                        {this.state.emoElaborationPromptingChatGpt &&
                             <CardActions>
                                 <Button size="small">AI Loading Answer...</Button>
                             </CardActions>
                         }
                         <Typography paragraph sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }}>
-                            {!this.state.promptingChatGpt && this.state.chatGptReply !== '' &&
+                            {!this.state.emoElaborationPromptingChatGpt && this.state.emoElaborationChatGptReply !== '' &&
                                 <Typography sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }} color="text.secondary" gutterBottom>
-                                    What made viewers {this.state.emoIcon}:
+                                    New content suggestion {this.state.emoIcon}:
                                 </Typography>
                             }
-                            {!this.state.promptingChatGpt && this.state.chatGptReply !== '' &&
+                            {!this.state.emoElaborationPromptingChatGpt && this.state.emoElaborationChatGptReply !== '' &&
                                 <View>
-                                    {this.state.chatGptReply}
+                                    {this.state.emoElaborationChatGptReply}
                                 </View>
                             }
                         </Typography>
@@ -228,25 +272,6 @@ class YTCommentsBasicResultCard extends Component {
                     <Button size="small" onClick={() => this.setState({ commentsExpand: !this.state.commentsExpand })}>COMMENT SNIPPETS</Button>
                 </CardActions>
                 */}
-                <Collapse in={this.state.commentsExpand} timeout="auto" unmountOnExit>
-                    <CardContent>
-                        <Typography paragraph sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }}>
-                            <Typography sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }} color="text.secondary" gutterBottom>
-                                Comment snippets
-                            </Typography>
-                            {/*this.state.topNComments !== undefined &&
-                            <ul style={styles.bulletPoints}>
-                                {this.state.topNComments.map(comment => (
-                                    <View>
-                                        <li>{comment.text}</li>
-                                        <br></br>
-                                    </View>
-                                ))}
-                            </ul>
-                            */}
-                        </Typography>
-                    </CardContent>
-                </Collapse>
             </Card>
         </View>
     )

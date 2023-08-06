@@ -47,6 +47,7 @@ function SettingsDropDown () {
           label="Setting"
           onChange={handleChange}
         >
+          <MenuItem value={'subscription'}>Subscription</MenuItem>
           <MenuItem value={'log-out'}>Log Out</MenuItem>
           {manualClearStore &&
           <View>

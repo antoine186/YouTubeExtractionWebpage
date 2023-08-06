@@ -75,6 +75,30 @@ class PaymentPage extends Component {
           this.props.setstripeSubscription(response.data.responsePayload)
           this.props.setValidSubscription(true)
 
+          if (response.data.responsePayload.subscription_status === 'active') {
+            console.log('In payment amendment mode')
+
+            // this.props.setValidSubscription(true)
+            this.props.setAmendPayment()
+          } else {
+            console.log('Subscription cancelled or expired. Creating a new subscription.')
+
+            api.post(getStripeCustomerId, {
+              username: this.props.accountData.accountData.payload.emailAddress
+            }, {
+              withCredentials: true
+            }
+            ).then(response => {
+              if (response.data.operation_success) {
+                this.props.setStripeCustomerId(response.data.responsePayload)
+                this.props.setValidSubscription(false)
+                this.createMissingSubscription()
+              }
+            }
+            )
+          }
+
+          /*
           api.post(getSubscriptionStatus, {
             stripeSubscriptionId: response.data.responsePayload.stripe_subscription_id
           }, {
@@ -106,9 +130,9 @@ class PaymentPage extends Component {
                 }
                 )
               }
-            } else { /* empty */ }
+            } else {  }
           }
-          )
+          ) */
         } else {
           console.log('No existing subscription')
 
@@ -202,16 +226,27 @@ class PaymentPage extends Component {
             Your Payment Details - {basicSubscriptionPricePerMonth} USD/Month Subscription
           </Text>
           {(this.props.userSession.validated && !this.props.validSubscription.validSubscription.payload) &&
-            <Text style={styles.titleText2}>
-              You don't have an active subscription.
-              Please add your payment details to get a {basicSubscriptionPricePerMonth} USD per month subscription
-            </Text>
+            <View>
+              <Text style={styles.titleText2}>
+                You don't have an active subscription.
+                Please add your payment details to get a {basicSubscriptionPricePerMonth} USD per month subscription
+              </Text>
+              <Text style={styles.titleText2}>
+                If payment form does not appear, please refresh page.
+              </Text>
+            </View>
           }
           {(this.props.userSession.validated && this.props.validSubscription.validSubscription.payload) &&
-            <Text style={styles.titleText2}>
-              You have an active subscription.
-              You can cancel your subscription here to create a new one.
-            </Text>
+            <View>
+              <Text style={styles.titleText2}>
+                You have an active subscription.
+                You can cancel your subscription here to create a new one.
+                If payment form does not appear, please refresh page.
+              </Text>
+              <Text style={styles.titleText2}>
+                If cancel button does not appear, please refresh page.
+              </Text>
+            </View>
           }
           {!this.state.subscriptionCreationFailed && !this.props.validSubscription.validSubscription.payload && !this.props.amendPaymentState.amendPaymentState && this.props.stripeSubscription.stripeSubscription.payload !== undefined &&
             <View style={styles.stripeCardElement}>

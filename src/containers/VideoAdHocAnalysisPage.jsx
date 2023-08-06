@@ -12,7 +12,7 @@ import { setAnonSession } from '../store/Slices/AnonSessionSlice'
 import CheckEmptyObject from '../utils/CheckEmptyObject'
 import ReaverageEmoBreakdown from '../utils/ReaverageEmoBreakdown'
 
-class Video2AnalysisPage extends Component {
+class VideoAdHocAnalysisPage extends Component {
   constructor (props) {
     super(props)
 
@@ -24,15 +24,15 @@ class Video2AnalysisPage extends Component {
     this.scrollToResults.bind(this)
 
     this.state = {
-      channelInput: '',
+      youtubeVideoInput: '',
       channelOverallEmoResultTableData: [],
       channelYTCommentsResultTableData: [],
       noResultsToReturn: false,
       noPreviousResults: true,
-      channelInitiated: false,
+      commentsAcquisitionInitiated: false,
       anyResponseFromServer: false,
-      usernameToUse,
-      videoNumber: 2,
+      //usernameToUse,
+      //videoNumber: 5,
       videoEmbeddedUrl: '',
       topNAnger: '',
       topNDisgust: '',
@@ -93,7 +93,7 @@ class Video2AnalysisPage extends Component {
     this.scrollToResults()
   }
 
-  handleSubmit = (e) => {
+  handleCommentAcquisitionSubmit = (e) => {
     e.preventDefault()
 
     if (CheckEmptyObject(this.props.anonSession.anonSession)) {
@@ -101,12 +101,12 @@ class Video2AnalysisPage extends Component {
       return
     }
 
-    this.setState({ channelInitiated: true })
+    this.setState({ commentsAcquisitionInitiated: true })
     this.setState({ noResultsToReturn: false })
 
     api.post(channelUrl, {
-      channelInput: this.state.channelInput,
-      username: this.state.usernameToUse
+      youtubeVideoInput: this.state.youtubeVideoInput,
+      username: this.props.accountData.accountData.payload.emailAddress
     }, {
       withCredentials: true
     }
@@ -115,14 +115,14 @@ class Video2AnalysisPage extends Component {
 
       if (response.data !== 'Error') {
         console.log('Channel analysis returned something!')
-        this.setState({ channelInitiated: false })
+        this.setState({ commentsAcquisitionInitiated: false })
         this.setState({ noPreviousResults: false })
         this.populateOverallEmoResultTable(response.data)
         this.populateCommentsResultTable(response.data)
         this.forceUpdate()
       } else {
         this.setState({ noResultsToReturn: true })
-        this.setState({ channelInitiated: false })
+        this.setState({ commentsAcquisitionInitiated: false })
         this.forceUpdate()
       }
     }
@@ -140,7 +140,7 @@ class Video2AnalysisPage extends Component {
       ).then(response => {
         if (response.data.operation_success) {
           console.log('Previous channel analysis returned something!')
-          this.setState({ channelInput: response.data.responsePayload.previous_search_result.search_input })
+          this.setState({ youtubeVideoInput: response.data.responsePayload.previous_search_result.search_input })
           this.setState({ noPreviousResults: false })
           this.populateOverallEmoResultTable(response.data.responsePayload.previous_search_result)
           this.populateCommentsResultTable(response.data.responsePayload.previous_search_result)
@@ -224,64 +224,33 @@ class Video2AnalysisPage extends Component {
           <Text style={styles.text}>For support, please email antoine.tian@emomachines.xyz</Text>
 
         <View style={styles.innerContainer}>
-          {/*
-          {!this.state.channelInitiated &&
-            <View style={styles.subcontainer}>
+          <View class="form-group form-row">
+            <View class="col-10">
               <br></br>
               <br></br>
-              <View>
-                <Text style={styles.text}>How To Find Articles Leading Emotional Categories for any Week-long Period</Text>
-              </View>
-              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              <iframe
-                width="560"
-                height="315"
-                src="https://www.youtube.com/embed/KDeo65ZMf2A"
-                title="YouTube video player"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen></iframe>
-              </View>
+              <TextInput
+                editable
+                multiline
+                numberOfLines={4}
+                maxLength={40}
+                value={this.state.youtubeVideoInput}
+                onChangeText={text => this.setState({ youtubeVideoInput: text })}
+                placeholder={'Try inputting youtube video url... (result might take a few minutes)'}
+                style={{ padding: 10, borderWidth: 2, borderColor: '#BC2BEA' }}
+              />
               <br></br>
+              {!this.state.commentAcquisitionInitiated &&
+                <TouchableOpacity style={styles.analyseBtn} onPress={this.handleCommentAcquisitionSubmit}>
+                  <Text style={styles.text}>ANALYSE</Text>
+                </TouchableOpacity>
+              }
             </View>
-          }
-          {this.state.channelInitiated &&
-            <View>
-              {this.scrollToLoading()}
-              <br></br>
-              <br></br>
-              <Text style={styles.text}>
-                Please Come Back in a Minute or Two...
-              </Text>
-              <Text style={styles.text}>
-                Don't reissue the same query. If the page is blank within 5 min, we might still be searching!
-              </Text>
-              <br></br>
-              <br></br>
-              <View style={{ alignItems: 'center' }}>
-                <ClipLoader
-                  color={'#e75fa6'}
-                  size={200}
-                  aria-label="Loading Spinner"
-                  data-testid="loader"
-                />
-              </View>
-            </View>
-          }
-
-          <br></br>
-          {this.state.noResultsToReturn && !this.state.channelInitiated &&
-            <Text style={styles.text}>
-              No results retrieved for this YouTube channel...
-            </Text>
-          }
-
-          */}
+          </View>
 
           <br></br>
           <br></br>
 
-          {!this.state.channelInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults &&
+          {!this.state.commentsAcquisitionInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults &&
             <iframe
                 width="560"
                 height="315"
@@ -295,7 +264,7 @@ class Video2AnalysisPage extends Component {
           <br></br>
           <br></br>
 
-          {!this.state.channelInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults &&
+          {!this.state.commentsAcquisitionInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults &&
           <View>
             <br></br>
             <YTCommentsOverallResultCard resultData={this.state.channelOverallEmoResultTableData} />
@@ -354,15 +323,8 @@ class Video2AnalysisPage extends Component {
 
 const mapStateToProps = state => {
   return {
-    accountData: state.accountData,
-    anonSession: state.anonSession
+    accountData: state.accountData
   }
 }
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    setAnonSession: (value) => dispatch(setAnonSession(value)),
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Video2AnalysisPage)
+export default connect(mapStateToProps)(VideoAdHocAnalysisPage)

@@ -75,7 +75,7 @@ function returnStyles () {
     code: {
       fontFamily: 'monospace, monospace'
     },
-    searchBtn: {
+    analyseBtn: {
       width: 8 * sizeScaler * vw,
       borderRadius: 25,
       height: 2 * sizeScaler * vw,

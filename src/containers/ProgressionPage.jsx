@@ -457,7 +457,7 @@ class ProgressionPage extends Component {
                     />
                     <br></br>
                     {!this.state.chartingInitiated &&
-                        <TouchableOpacity style={styles.searchBtn} onPress={this.handleSubmit}>
+                        <TouchableOpacity style={styles.analyseBtn} onPress={this.handleSubmit}>
                             <Text style={styles.text}>CHART $0.60</Text>
                         </TouchableOpacity>
                     }
@@ -466,7 +466,7 @@ class ProgressionPage extends Component {
                     }
                     {!this.state.chartingInitiated &&
                     <View>
-                      <TouchableOpacity style={styles.searchBtn} onPress={this.addCredits.bind(this)}>
+                      <TouchableOpacity style={styles.analyseBtn} onPress={this.addCredits.bind(this)}>
                         <Text style={styles.text}>Add $1 Credit</Text>
                       </TouchableOpacity>
                     </View>

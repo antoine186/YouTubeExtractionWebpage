@@ -25,64 +25,19 @@ class LandingSwitchingPage extends Component {
   constructor (props) {
     super(props)
 
-    let usernameToUse = ''
-
-    if (CheckEmptyObject(this.props.anonSession.anonSession)) {
-      usernameToUse = 'antoine186@hotmail.com'
-
-      const newAnonSessionId = GenerateRandomString(15)
-
-      const payload = {
-        firstName: newAnonSessionId,
-        lastName: newAnonSessionId,
-        emailAddress: newAnonSessionId,
-        password: newAnonSessionId,
-        dateBirth: new Date(),
-        telephoneNumber: newAnonSessionId,
-        telephoneAreaCode: newAnonSessionId,
-        selectedCountryName: newAnonSessionId,
-        selectedCountryCode: newAnonSessionId,
-        selectedStateCode: newAnonSessionId,
-        selectedStateName: newAnonSessionId,
-        selectedCityName: newAnonSessionId,
-        addressLine1: newAnonSessionId,
-        addressLine2: newAnonSessionId,
-        zipCode: newAnonSessionId,
-        anonSessionSet: false
-      }
-
-      api.post(basicAccountCreateUrl, {
-        accountCreationData: payload
-      }, {
-        withCredentials: true
-      }
-      ).then(response => {
-        if (response.data.operation_success) {
-          // this.props.setAccountData(accountCreationData)
-          this.props.setAnonSession(newAnonSessionId)
-          this.setState({ anonSessionSet: true })
-        } else {
-          this.forceUpdate()
-        }
-      }
-      )
-    } // else {
-      // const newAnonSessionId = this.props.anonSession.anonSession
-      // usernameToUse = newAnonSessionId.payload
-    //}
-
     this.state = {
       userSessionValidated: this.props.userSession.validated,
       searchShow: false,
       tagShow: false,
       progression: false,
       linking: false,
-      channelShow: true,
+      channelShow: false,
       video1Show: false,
       video2Show: false,
       video3Show: false,
       video4Show: false,
-      video5Show: false
+      video5Show: false,
+      videoAdHocAnalysisShow: true
     }
 
     this.clearToggleChoice = this.clearToggleChoice.bind(this)
@@ -96,6 +51,7 @@ class LandingSwitchingPage extends Component {
     this.toggleVideo3Show = this.toggleVideo3Show.bind(this)
     this.toggleVideo4Show = this.toggleVideo4Show.bind(this)
     this.toggleVideo5Show = this.toggleVideo5Show.bind(this)
+    this.toggleVideoAdHocAnalysisShow = this.toggleVideoAdHocAnalysisShow.bind(this)
   }
 
   componentDidUpdate (prevProps, prevState) {
@@ -115,6 +71,7 @@ class LandingSwitchingPage extends Component {
     this.setState({ video3Show: false })
     this.setState({ video4Show: false })
     this.setState({ video5Show: false })
+    this.setState({ videoAdHocAnalysisShow: false })
   }
 
   toggleClickSearch () {
@@ -177,8 +134,22 @@ class LandingSwitchingPage extends Component {
     this.setState({ video5Show: true })
   }
 
+  toggleVideoAdHocAnalysisShow () {
+    console.log('Toggling to Video Adhoc Analysis')
+    this.clearToggleChoice()
+    this.setState({ videoAdHocAnalysisShow: true })
+  }
+
   render () {
-    return (
+    if (!this.state.userSessionValidated) {
+      return (
+        <View>
+            <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
+            <Navigate to='/login' />
+        </View>
+      )
+    } else if (this.props.validSubscription.validSubscription.payload !== undefined && this.props.validSubscription.validSubscription.payload) {
+      return (
       <View>
           <TopBar settingsEnabled={true} />
           <View style={styles.container}>
@@ -214,12 +185,16 @@ class LandingSwitchingPage extends Component {
                 {this.state.video5Show &&
                   <Text style={styles.titleText}>Emotional Machines Video Analysis (Beta)</Text>
                 }
+                {this.state.videoAdHocAnalysisShow &&
+                  <Text style={styles.titleText}>Emotional Machines Video Analysis (Beta)</Text>
+                }
               </View>
               <ToggleButtonGroup
                   // value={alignment}
                   exclusive
                   // onChange={handleAlignment}
               >
+                  {/*
                   <ToggleButton value="channel" onClick={this.toggleChannelShow}>
                     <View>
                       <Image style={styles.image} source={require('../assets/images/profile-icon.png')} />
@@ -261,7 +236,6 @@ class LandingSwitchingPage extends Component {
                       <Text>Click Me</Text>
                     </View>
                   </ToggleButton>
-                  {/*
                   <ToggleButton value="tag" onClick={this.toggleClickTag}>
                       <Image style={styles.image} source={require('../assets/images/tag.jpg')} />
                   </ToggleButton>
@@ -302,24 +276,30 @@ class LandingSwitchingPage extends Component {
               {this.state.channelShow &&
                 <ChannelSearchPage />
               }
+              {this.state.videoAdHocAnalysisShow &&
+                <ChannelSearchPage />
+              }
           </View>
       </View>
-    )
+      )
+    } else if (this.state.userSessionValidated && !this.props.validSubscription.validSubscription.payload) {
+      return (
+      <View>
+          <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
+          <Navigate to='/payment' />
+      </View>
+      )
+    } else {
+      { this.forceUpdate() }
+    }
   }
 }
 
 const mapStateToProps = state => {
   return {
     userSession: state.userSession,
-    validSubscription: state.validSubscription,
-    anonSession: state.anonSession
+    validSubscription: state.validSubscription
   }
 }
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    setAnonSession: (value) => dispatch(setAnonSession(value))
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(LandingSwitchingPage)
+export default connect(mapStateToProps)(LandingSwitchingPage)

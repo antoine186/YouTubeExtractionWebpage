@@ -199,7 +199,7 @@ class TaggingPage extends React.Component {
                     <br></br>
                     <br></br>
                     {false &&
-                        <TouchableOpacity style={styles.searchBtn} onPress={this.handleSubmit.bind(this)}>
+                        <TouchableOpacity style={styles.analyseBtn} onPress={this.handleSubmit.bind(this)}>
                             <Text style={styles.text}>TAG</Text>
                         </TouchableOpacity>
                     }

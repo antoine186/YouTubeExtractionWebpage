@@ -165,7 +165,8 @@ class Video3AnalysisPage extends Component {
 
     const overallEmoResultDict = {
       overall_emo: 'Overall Emotional Engagement with Search Topic Over All Articles Found!',
-      emotional_engagement: EmoEngagementStringFormatter(data.average_emo_breakdown.average_emo_breakdown)
+      //emotional_engagement: EmoEngagementStringFormatter(data.average_emo_breakdown.average_emo_breakdown)
+      emotional_engagement: EmoEngagementStringFormatter(data.average_emo_breakdown)
     }
 
     channelOverallEmoResultTableData.push(overallEmoResultDict)

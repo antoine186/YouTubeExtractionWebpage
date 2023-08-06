@@ -90,7 +90,7 @@ class ChannelSearchPage extends Component {
               />
               <br></br>
               {!this.state.channelInitiated &&
-                <TouchableOpacity style={styles.searchBtn} onPress={this.handleSubmit}>
+                <TouchableOpacity style={styles.analyseBtn} onPress={this.handleSubmit}>
                   <Text style={styles.text}>ANALYSE</Text>
                 </TouchableOpacity>
               }

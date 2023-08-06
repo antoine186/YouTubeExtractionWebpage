@@ -86,7 +86,8 @@ function returnStyles () {
     },
     titleText2: {
       color: '#AD3978',
-      fontSize: 0.8 * sizeScaler * vw
+      fontSize: 0.8 * sizeScaler * vw,
+      textAlign: 'center'
     },
     rowContainer: {
       flexDirection: 'row'

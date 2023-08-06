@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { StatusBar } from 'expo-status-bar'
 import { TouchableOpacity, Text, View, Image, TextInput } from 'react-native'
 import styles from '../utils/style_guide/LoginPageStyle'
-import { api, loginAuthUrl, retrieveSubscriptionDetails, getSubscriptionStatus, retrieveAccountData } from '../utils/backend_configuration/BackendConfig'
+import { api, loginAuthUrl, retrieveSubscriptionDetails, getSubscriptionStatus, retrieveAccountData, deleteSubscription } from '../utils/backend_configuration/BackendConfig'
 import { useSelector, useDispatch } from 'react-redux'
 import { validateUserSession } from '../store/Slices/UserSessionSlice'
 import { useNavigate, Navigate } from 'react-router-dom'
@@ -72,27 +72,30 @@ function Login () {
             }, {
               withCredentials: true
             }
-            ).then(response => {
-              if (response.data.operation_success) {
-                if (response.data.responsePayload.stripe_subscription_status === 'active' ||
-                response.data.responsePayload.stripe_subscription_status === 'trialing') {
+            ).then(response2 => {
+              if (response2.data.operation_success) {
+                if (response2.data.responsePayload.stripe_subscription_status === 'active' ||
+                response2.data.responsePayload.stripe_subscription_status === 'trialing') {
                   console.log('Found valid subscription')
                   dispatch(setValidSubscription(true))
                 } else {
                   console.log('No valid subscriptions found')
+
                   dispatch(setValidSubscription(false))
                 }
-              } else { /* empty */ }
+              } else {
+              }
             }
             )
           } else {
             console.log('No valid subscriptions found')
+
             dispatch(setValidSubscription(false))
           }
         }
         )
 
-        navigate('/')
+        navigate('/home')
       } else {
         setPassIncorrect(true)
       }

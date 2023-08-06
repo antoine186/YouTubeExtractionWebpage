@@ -354,7 +354,7 @@ class EmotionalSearchPage extends Component {
               <br></br>
               <CappedDatePicker minDate={this.state.minDate} onChange={this.onChange.bind(this)} />
               {!this.state.searchingInitiated &&
-                <TouchableOpacity style={styles.searchBtn} onPress={this.handleSubmit}>
+                <TouchableOpacity style={styles.analyseBtn} onPress={this.handleSubmit}>
                   <Text style={styles.text}>SEARCH $0.20</Text>
                 </TouchableOpacity>
               }
@@ -363,7 +363,7 @@ class EmotionalSearchPage extends Component {
               }
               {!this.state.searchingInitiated &&
               <View>
-                <TouchableOpacity style={styles.searchBtn} onPress={this.addCredits.bind(this)}>
+                <TouchableOpacity style={styles.analyseBtn} onPress={this.addCredits.bind(this)}>
                   <Text style={styles.text}>Add $1 Credit</Text>
                 </TouchableOpacity>
               </View>
