@@ -78,24 +78,29 @@ function Login () {
                 response2.data.responsePayload.stripe_subscription_status === 'trialing') {
                   console.log('Found valid subscription')
                   dispatch(setValidSubscription(true))
+
+                  navigate('/')
                 } else {
                   console.log('No valid subscriptions found')
-
                   dispatch(setValidSubscription(false))
+
+                  navigate('/')
                 }
               } else {
+                navigate('/')
               }
             }
             )
           } else {
             console.log('No valid subscriptions found')
-
             dispatch(setValidSubscription(false))
+
+            navigate('/')
           }
         }
         )
 
-        navigate('/home')
+        // navigate('/home')
       } else {
         setPassIncorrect(true)
       }
