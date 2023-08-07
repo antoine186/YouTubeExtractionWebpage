@@ -20,6 +20,7 @@ import { api, basicAccountCreateUrl } from '../utils/backend_configuration/Backe
 import GenerateRandomString from '../utils/GenerateRandomString'
 import { setAnonSession } from '../store/Slices/AnonSessionSlice'
 import ChannelSearchPage from './ChannelSearchPage'
+import VideoAdHocAnalysisPage from './VideoAdHocAnalysisPage'
 
 class LandingSwitchingPage extends Component {
   constructor (props) {
@@ -277,7 +278,7 @@ class LandingSwitchingPage extends Component {
                 <ChannelSearchPage />
               }
               {this.state.videoAdHocAnalysisShow &&
-                <ChannelSearchPage />
+                <VideoAdHocAnalysisPage />
               }
           </View>
       </View>

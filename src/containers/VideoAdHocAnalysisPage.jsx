@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Icon, Image } from 'react-native'
 import styles from '../utils/style_guide/MainWebpageStyle'
-import { api, channelUrl, youtubeRetrieveChannelResults } from '../utils/backend_configuration/BackendConfig'
+import { api, youtubeVideoAdhocAnalyse, youtubeRetrieveChannelResults } from '../utils/backend_configuration/BackendConfig'
 import ArticlesResultTableDataWrangler from './search_helper_functions/ArticlesResultTableDataWrangler'
 import SearchOverallEmoResultTable from '../components/molecules/SearchOverallEmoResultTable'
 import EmoEngagementStringFormatter from './search_helper_functions/EmoEngagementStringFormatter'
@@ -11,13 +11,11 @@ import YTCommentsOverallResultCard from '../components/molecules/YTCommentsOvera
 import { setAnonSession } from '../store/Slices/AnonSessionSlice'
 import CheckEmptyObject from '../utils/CheckEmptyObject'
 import ReaverageEmoBreakdown from '../utils/ReaverageEmoBreakdown'
+import ExtractVideoId from '../utils/url_manipulator_helpers/ExtractVideoId'
 
 class VideoAdHocAnalysisPage extends Component {
   constructor (props) {
     super(props)
-
-    const newAnonSessionId = this.props.anonSession.anonSession
-    const usernameToUse = newAnonSessionId.payload
 
     this.resultsRef = React.createRef()
 
@@ -31,8 +29,8 @@ class VideoAdHocAnalysisPage extends Component {
       noPreviousResults: true,
       commentsAcquisitionInitiated: false,
       anyResponseFromServer: false,
-      //usernameToUse,
-      //videoNumber: 5,
+      // usernameToUse,
+      // videoNumber: 5,
       videoEmbeddedUrl: '',
       topNAnger: '',
       topNDisgust: '',
@@ -56,8 +54,9 @@ class VideoAdHocAnalysisPage extends Component {
       console.log('Didnt manage to add 1 dollar')
     }
 
+    /*
     api.post(youtubeRetrieveChannelResults, {
-      username: usernameToUse
+      username: this.props.accountData.accountData.payload.emailAddress
     }, {
       withCredentials: true
     }
@@ -73,7 +72,7 @@ class VideoAdHocAnalysisPage extends Component {
     ).catch(error => {
       console.log('Check channel analysis in progress failed')
       this.setState({ noPreviousResults: true })
-    })
+    }) */
   }
 
   scrollToLoading () {
@@ -96,16 +95,13 @@ class VideoAdHocAnalysisPage extends Component {
   handleCommentAcquisitionSubmit = (e) => {
     e.preventDefault()
 
-    if (CheckEmptyObject(this.props.anonSession.anonSession)) {
-      console.log('No anon session set')
-      return
-    }
+    const videoId = ExtractVideoId(this.state.youtubeVideoInput)
 
     this.setState({ commentsAcquisitionInitiated: true })
     this.setState({ noResultsToReturn: false })
 
-    api.post(channelUrl, {
-      youtubeVideoInput: this.state.youtubeVideoInput,
+    api.post(youtubeVideoAdhocAnalyse, {
+      youtubeVideoInput: videoId,
       username: this.props.accountData.accountData.payload.emailAddress
     }, {
       withCredentials: true
@@ -113,8 +109,8 @@ class VideoAdHocAnalysisPage extends Component {
     ).then(response => {
       this.setState({ anyResponseFromServer: true })
 
-      if (response.data !== 'Error') {
-        console.log('Channel analysis returned something!')
+      if (response.data.operation_success) {
+        console.log('Video adhoc analysis returned something!')
         this.setState({ commentsAcquisitionInitiated: false })
         this.setState({ noPreviousResults: false })
         this.populateOverallEmoResultTable(response.data)
@@ -130,10 +126,10 @@ class VideoAdHocAnalysisPage extends Component {
       // Also add 'ERR_EMPTY_RESPONSE'
       if (error.code === 'ERR_BAD_RESPONSE') {
       }
-
+      /*
       console.log('Triggered timeout recovery')
       api.post(youtubeRetrieveChannelResults, {
-        username: this.state.usernameToUse
+        username: this.props.accountData.accountData.payload.emailAddress
       }, {
         withCredentials: true
       }
@@ -156,7 +152,7 @@ class VideoAdHocAnalysisPage extends Component {
         this.setState({ noResultsToReturn: true })
         this.setState({ channelInitiated: false })
         this.setState({ noPreviousResults: true })
-      })
+      }) */
     })
   }
 
@@ -231,11 +227,11 @@ class VideoAdHocAnalysisPage extends Component {
               <TextInput
                 editable
                 multiline
-                numberOfLines={4}
-                maxLength={40}
+                numberOfLines={6}
+                maxLength={200}
                 value={this.state.youtubeVideoInput}
                 onChangeText={text => this.setState({ youtubeVideoInput: text })}
-                placeholder={'Try inputting youtube video url... (result might take a few minutes)'}
+                placeholder={'Try inputting a youtube video url... (result might take a few minutes)'}
                 style={{ padding: 10, borderWidth: 2, borderColor: '#BC2BEA' }}
               />
               <br></br>
@@ -246,6 +242,15 @@ class VideoAdHocAnalysisPage extends Component {
               }
             </View>
           </View>
+          {this.state.noResultsToReturn &&
+            <View>
+              <br></br>
+              <Text style={styles.errorText}>
+                Could not retrieve video comments. Maybe your URL is incorrect!
+              </Text>
+              <br></br>
+            </View>
+          }
 
           <br></br>
           <br></br>

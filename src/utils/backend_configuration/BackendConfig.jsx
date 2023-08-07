@@ -41,6 +41,7 @@ export const channelUrl = './channelUrl'
 export const youtubeRetrieveChannelResults = './youtube-retrieve-channel-results'
 export const commentsChatgptQuestioning = './comments-chatgpt-questioning'
 export const commentsChatgptEmoElaboration = './comments-chatgpt-emo-elaboration'
+export const youtubeVideoAdhocAnalyse = './youtube-video-adhoc-analyse'
 
 export const api = axios.create({
   baseURL: backendUrl
