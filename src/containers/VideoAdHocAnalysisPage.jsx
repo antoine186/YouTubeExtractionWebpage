@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Icon, Image } from 'react-native'
 import styles from '../utils/style_guide/MainWebpageStyle'
-import { api, youtubeVideoAdhocAnalyse, youtubeRetrieveChannelResults } from '../utils/backend_configuration/BackendConfig'
+import { api, youtubeVideoAdhocAnalyse, youtubeRetrieveChannelResults, youtubeRetrieveVideoAdhocResults } from '../utils/backend_configuration/BackendConfig'
 import ArticlesResultTableDataWrangler from './search_helper_functions/ArticlesResultTableDataWrangler'
 import SearchOverallEmoResultTable from '../components/molecules/SearchOverallEmoResultTable'
 import EmoEngagementStringFormatter from './search_helper_functions/EmoEngagementStringFormatter'
@@ -54,25 +54,23 @@ class VideoAdHocAnalysisPage extends Component {
       console.log('Didnt manage to add 1 dollar')
     }
 
-    /*
-    api.post(youtubeRetrieveChannelResults, {
+    api.post(youtubeRetrieveVideoAdhocResults, {
       username: this.props.accountData.accountData.payload.emailAddress
     }, {
       withCredentials: true
     }
     ).then(response => {
       if (response.data.operation_success) {
-        this.setState({ channelInitiated: false })
+        this.setState({ commentsAcquisitionInitiated: false })
         this.setState({ noPreviousResults: false })
 
-        this.populateOverallEmoResultTable(response.data.responsePayload.top_5_average_emo_breakdown[this.state.videoNumber - 1])
+        this.populateOverallEmoResultTable(response.data.responsePayload.average_emo_breakdown)
         this.populateCommentsResultTable(response.data.responsePayload)
+      } else {
+        console.log('Comments still being analysed')
       }
     }
-    ).catch(error => {
-      console.log('Check channel analysis in progress failed')
-      this.setState({ noPreviousResults: true })
-    }) */
+    )
   }
 
   scrollToLoading () {
@@ -162,7 +160,7 @@ class VideoAdHocAnalysisPage extends Component {
     const overallEmoResultDict = {
       overall_emo: 'Overall Emotional Engagement with Search Topic Over All Articles Found!',
       //emotional_engagement: EmoEngagementStringFormatter(data.average_emo_breakdown.average_emo_breakdown)
-      emotional_engagement: EmoEngagementStringFormatter(data.average_emo_breakdown)
+      emotional_engagement: EmoEngagementStringFormatter(data)
     }
 
     channelOverallEmoResultTableData.push(overallEmoResultDict)
@@ -174,7 +172,7 @@ class VideoAdHocAnalysisPage extends Component {
   populateCommentsResultTable (data) {
     const channelYTCommentsResultTableData = []
 
-    const articlesResultsTopVideoDict = ArticlesResultTableDataWrangler(data.top_5_videos[this.state.videoNumber - 1])
+    const articlesResultsTopVideoDict = ArticlesResultTableDataWrangler(data.video_data)
 
     channelYTCommentsResultTableData.push(
       articlesResultsTopVideoDict.Happiest,
@@ -186,13 +184,13 @@ class VideoAdHocAnalysisPage extends Component {
       articlesResultsTopVideoDict.Surprised
     )
 
-    let top_n_anger_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_5_top_n_anger[this.state.videoNumber - 1]).emo_breakdown)
-    let top_n_disgust_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_5_top_n_disgust[this.state.videoNumber - 1]).emo_breakdown)
-    let top_n_fear_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_5_top_n_fear[this.state.videoNumber - 1]).emo_breakdown)
-    let top_n_joy_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_5_top_n_joy[this.state.videoNumber - 1]).emo_breakdown)
-    let top_n_neutral_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_5_top_n_neutral[this.state.videoNumber - 1]).emo_breakdown)
-    let top_n_sadness_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_5_top_n_sadness[this.state.videoNumber - 1]).emo_breakdown)
-    let top_n_surprise_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_5_top_n_surprise[this.state.videoNumber - 1]).emo_breakdown)
+    let top_n_anger_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_anger).emo_breakdown)
+    let top_n_disgust_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_disgust).emo_breakdown)
+    let top_n_fear_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_fear).emo_breakdown)
+    let top_n_joy_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_joy).emo_breakdown)
+    let top_n_neutral_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_neutral).emo_breakdown)
+    let top_n_sadness_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_sadness).emo_breakdown)
+    let top_n_surprise_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_surprise).emo_breakdown)
 
     this.setState({ top_n_anger_average_emo_breakdown })
     this.setState({ top_n_disgust_average_emo_breakdown })
@@ -202,15 +200,15 @@ class VideoAdHocAnalysisPage extends Component {
     this.setState({ top_n_sadness_average_emo_breakdown })
     this.setState({ top_n_surprise_average_emo_breakdown })
 
-    this.setState({ topNAnger: data.top_5_top_n_anger[this.state.videoNumber - 1] })
-    this.setState({ topNDisgust: data.top_5_top_n_disgust[this.state.videoNumber - 1] })
-    this.setState({ topNFear: data.top_5_top_n_fear[this.state.videoNumber - 1] })
-    this.setState({ topNJoy: data.top_5_top_n_joy[this.state.videoNumber - 1] })
-    this.setState({ topNNeutral: data.top_5_top_n_neutral[this.state.videoNumber - 1] })
-    this.setState({ topNSadness: data.top_5_top_n_sadness[this.state.videoNumber - 1] })
-    this.setState({ topNSurprise: data.top_5_top_n_surprise[this.state.videoNumber - 1] })
+    this.setState({ topNAnger: data.top_n_anger })
+    this.setState({ topNDisgust: data.top_n_disgust })
+    this.setState({ topNFear: data.top_n_fear })
+    this.setState({ topNJoy: data.top_n_joy })
+    this.setState({ topNNeutral: data.top_n_neutral })
+    this.setState({ topNSadness: data.top_n_sadness })
+    this.setState({ topNSurprise: data.top_n_surprise })
 
-    this.setState({ videoEmbeddedUrl: data.top_5_videos[this.state.videoNumber - 1].url })
+    this.setState({ videoEmbeddedUrl: data.video_data.url })
     this.setState({ channelYTCommentsResultTableData })
   }
 
@@ -234,14 +232,14 @@ class VideoAdHocAnalysisPage extends Component {
                 placeholder={'Try inputting a youtube video url... (result might take a few minutes)'}
                 style={{ padding: 10, borderWidth: 2, borderColor: '#BC2BEA' }}
               />
-              <br></br>
-              {!this.state.commentAcquisitionInitiated &&
-                <TouchableOpacity style={styles.analyseBtn} onPress={this.handleCommentAcquisitionSubmit}>
-                  <Text style={styles.text}>ANALYSE</Text>
-                </TouchableOpacity>
-              }
             </View>
           </View>
+          <br></br>
+          {!this.state.commentAcquisitionInitiated &&
+            <TouchableOpacity style={styles.analyseBtn} onPress={this.handleCommentAcquisitionSubmit}>
+              <Text style={styles.text}>ANALYSE</Text>
+            </TouchableOpacity>
+          }
           {this.state.noResultsToReturn &&
             <View>
               <br></br>
