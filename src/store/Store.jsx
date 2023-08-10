@@ -16,6 +16,7 @@ import AnonSessionReducer from './Slices/AnonSessionSlice'
 import CreditReducer from './Slices/CreditSlice'
 import SearchTimeoutReducer from './Slices/SearchTimeoutSlice'
 import ProgressionTimeoutReducer from './Slices/ProgressionTimeoutSlice'
+import videoAdHocSmartRetrievalReducer from './Slices/VideoAdHocSmartRetrievalSlice'
 
 const rootReducer = combineReducers({
   userSession: userSessionReducer,
@@ -30,7 +31,8 @@ const rootReducer = combineReducers({
   anonSession: AnonSessionReducer,
   creditData: CreditReducer,
   searchTimeoutState: SearchTimeoutReducer,
-  progressionTimeoutState: ProgressionTimeoutReducer
+  progressionTimeoutState: ProgressionTimeoutReducer,
+  videoAdHocSmartRetrieval: videoAdHocSmartRetrievalReducer
 })
 
 export const persistConfig = {
@@ -49,7 +51,8 @@ export const persistConfig = {
     'anonSession',
     'creditData',
     'searchTimeoutState',
-    'progressionTimeoutState'
+    'progressionTimeoutState',
+    'videoAdHocSmartRetrieval'
   ]
 }
 

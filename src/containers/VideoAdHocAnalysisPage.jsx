@@ -13,6 +13,7 @@ import CheckEmptyObject from '../utils/CheckEmptyObject'
 import ReaverageEmoBreakdown from '../utils/ReaverageEmoBreakdown'
 import ExtractVideoId from '../utils/url_manipulator_helpers/ExtractVideoId'
 import ClipLoader from 'react-spinners/ClipLoader'
+import { activateVideoAdHocSmartRetrieval, deactivateVideoAdHocSmartRetrieval } from '../store/Slices/VideoAdHocSmartRetrievalSlice'
 
 class VideoAdHocAnalysisPage extends Component {
   constructor (props) {
@@ -22,13 +23,20 @@ class VideoAdHocAnalysisPage extends Component {
 
     this.scrollToResults.bind(this)
 
+    let commentsAcquisitionInitiated
+    if (this.props.videoAdHocSmartRetrieval.validated) {
+      commentsAcquisitionInitiated = true
+    } else {
+      commentsAcquisitionInitiated = false
+    }
+
     this.state = {
       youtubeVideoInput: '',
       channelOverallEmoResultTableData: [],
       channelYTCommentsResultTableData: [],
       noResultsToReturn: false,
       noPreviousResults: true,
-      commentsAcquisitionInitiated: false,
+      commentsAcquisitionInitiated,
       anyResponseFromServer: false,
       // usernameToUse,
       // videoNumber: 5,
@@ -49,7 +57,8 @@ class VideoAdHocAnalysisPage extends Component {
       top_n_surprise_average_emo_breakdown: '',
       oneSecond: 1000,
       intervalId: '',
-      username: this.props.accountData.accountData.payload.emailAddress
+      username: this.props.accountData.accountData.payload.emailAddress,
+      smartRetrievalOnGoing: false
     }
 
     api.post(youtubeRetrieveVideoAdhocResults, {
@@ -70,7 +79,12 @@ class VideoAdHocAnalysisPage extends Component {
         if (response.data.error_message === 'still_analysing') {
           console.log('Comments still being analysed')
 
-          this.retrievePreviousResults()
+          this.props.activateVideoAdHocSmartRetrieval()
+
+          console.log(this.props)
+          if (this.props.videoAdHocSmartRetrieval.validated) {
+            this.retrievePreviousResults()
+          }
         } else {
           console.log('Nothing to return')
         }
@@ -123,7 +137,9 @@ class VideoAdHocAnalysisPage extends Component {
       } else {
         if (response.data.error_message === 'not_enough_time_elapsed') {
           console.log('Not enough time elapsed')
-          this.retrievePreviousResults()
+          if (this.props.videoAdHocSmartRetrieval.validated) {
+            this.retrievePreviousResults()
+          }
         } else {
           console.log('Nothing returned at all')
           this.setState({ noResultsToReturn: true })
@@ -136,7 +152,9 @@ class VideoAdHocAnalysisPage extends Component {
       // Also add 'ERR_EMPTY_RESPONSE'
       if (error.code === 'ERR_BAD_RESPONSE') {
         console.log('Did not get a response yet, setting up smart retrieval')
-        this.retrievePreviousResults()
+        if (this.props.videoAdHocSmartRetrieval.validated) {
+          this.retrievePreviousResults()
+        }
       }
       /*
       console.log('Triggered timeout recovery')
@@ -254,7 +272,15 @@ class VideoAdHocAnalysisPage extends Component {
 
         clearInterval(this.state.intervalId)
       } else {
-        console.log('Comments still being analysed')
+        if (response.data.error_message === 'still_analysing') {
+          console.log('Comments still being analysed')
+        } else {
+          console.log('Nothing returned at all')
+          this.setState({ noResultsToReturn: true })
+          this.setState({ commentsAcquisitionInitiated: false })
+          this.props.deactivateVideoAdHocSmartRetrieval()
+          this.forceUpdate()
+        }
       }
     }
     )
@@ -388,8 +414,16 @@ class VideoAdHocAnalysisPage extends Component {
 
 const mapStateToProps = state => {
   return {
-    accountData: state.accountData
+    accountData: state.accountData,
+    videoAdHocSmartRetrieval: state.videoAdHocSmartRetrieval
   }
 }
 
-export default connect(mapStateToProps)(VideoAdHocAnalysisPage)
+const mapDispatchToProps = (dispatch) => {
+  return {
+    activateVideoAdHocSmartRetrieval: (value) => dispatch(activateVideoAdHocSmartRetrieval(value)),
+    deactivateVideoAdHocSmartRetrieval: (value) => dispatch(deactivateVideoAdHocSmartRetrieval(value))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(VideoAdHocAnalysisPage)
