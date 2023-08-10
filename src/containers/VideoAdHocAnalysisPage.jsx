@@ -12,6 +12,7 @@ import { setAnonSession } from '../store/Slices/AnonSessionSlice'
 import CheckEmptyObject from '../utils/CheckEmptyObject'
 import ReaverageEmoBreakdown from '../utils/ReaverageEmoBreakdown'
 import ExtractVideoId from '../utils/url_manipulator_helpers/ExtractVideoId'
+import ClipLoader from 'react-spinners/ClipLoader'
 
 class VideoAdHocAnalysisPage extends Component {
   constructor (props) {
@@ -45,13 +46,10 @@ class VideoAdHocAnalysisPage extends Component {
       top_n_joy_average_emo_breakdown: '',
       top_n_neutral_average_emo_breakdown: '',
       top_n_sadness_average_emo_breakdown: '',
-      top_n_surprise_average_emo_breakdown: ''
-    }
-
-    const query = new URLSearchParams(window.location.search)
-
-    if (query.get('canceled')) {
-      console.log('Didnt manage to add 1 dollar')
+      top_n_surprise_average_emo_breakdown: '',
+      oneSecond: 1000,
+      intervalId: '',
+      username: this.props.accountData.accountData.payload.emailAddress
     }
 
     api.post(youtubeRetrieveVideoAdhocResults, {
@@ -64,10 +62,18 @@ class VideoAdHocAnalysisPage extends Component {
         this.setState({ commentsAcquisitionInitiated: false })
         this.setState({ noPreviousResults: false })
 
+        this.setState({ youtubeVideoInput: response.data.responsePayload.video_id })
+
         this.populateOverallEmoResultTable(response.data.responsePayload.average_emo_breakdown)
         this.populateCommentsResultTable(response.data.responsePayload)
       } else {
-        console.log('Comments still being analysed')
+        if (response.data.error_message === 'still_analysing') {
+          console.log('Comments still being analysed')
+
+          this.retrievePreviousResults()
+        } else {
+          console.log('Nothing to return')
+        }
       }
     }
     )
@@ -115,14 +121,22 @@ class VideoAdHocAnalysisPage extends Component {
         this.populateCommentsResultTable(response.data)
         this.forceUpdate()
       } else {
-        this.setState({ noResultsToReturn: true })
-        this.setState({ commentsAcquisitionInitiated: false })
-        this.forceUpdate()
+        if (response.data.error_message === 'not_enough_time_elapsed') {
+          console.log('Not enough time elapsed')
+          this.retrievePreviousResults()
+        } else {
+          console.log('Nothing returned at all')
+          this.setState({ noResultsToReturn: true })
+          this.setState({ commentsAcquisitionInitiated: false })
+          this.forceUpdate()
+        }
       }
     }
     ).catch(error => {
       // Also add 'ERR_EMPTY_RESPONSE'
       if (error.code === 'ERR_BAD_RESPONSE') {
+        console.log('Did not get a response yet, setting up smart retrieval')
+        this.retrievePreviousResults()
       }
       /*
       console.log('Triggered timeout recovery')
@@ -159,7 +173,7 @@ class VideoAdHocAnalysisPage extends Component {
 
     const overallEmoResultDict = {
       overall_emo: 'Overall Emotional Engagement with Search Topic Over All Articles Found!',
-      //emotional_engagement: EmoEngagementStringFormatter(data.average_emo_breakdown.average_emo_breakdown)
+      // emotional_engagement: EmoEngagementStringFormatter(data.average_emo_breakdown.average_emo_breakdown)
       emotional_engagement: EmoEngagementStringFormatter(data)
     }
 
@@ -184,13 +198,13 @@ class VideoAdHocAnalysisPage extends Component {
       articlesResultsTopVideoDict.Surprised
     )
 
-    let top_n_anger_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_anger).emo_breakdown)
-    let top_n_disgust_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_disgust).emo_breakdown)
-    let top_n_fear_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_fear).emo_breakdown)
-    let top_n_joy_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_joy).emo_breakdown)
-    let top_n_neutral_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_neutral).emo_breakdown)
-    let top_n_sadness_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_sadness).emo_breakdown)
-    let top_n_surprise_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_surprise).emo_breakdown)
+    const top_n_anger_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_anger).emo_breakdown)
+    const top_n_disgust_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_disgust).emo_breakdown)
+    const top_n_fear_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_fear).emo_breakdown)
+    const top_n_joy_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_joy).emo_breakdown)
+    const top_n_neutral_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_neutral).emo_breakdown)
+    const top_n_sadness_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_sadness).emo_breakdown)
+    const top_n_surprise_average_emo_breakdown = EmoEngagementStringFormatter(ReaverageEmoBreakdown(data.top_n_surprise).emo_breakdown)
 
     this.setState({ top_n_anger_average_emo_breakdown })
     this.setState({ top_n_disgust_average_emo_breakdown })
@@ -210,6 +224,40 @@ class VideoAdHocAnalysisPage extends Component {
 
     this.setState({ videoEmbeddedUrl: data.video_data.url })
     this.setState({ channelYTCommentsResultTableData })
+  }
+
+  retrievePreviousResults () {
+    const intervalId = setInterval(this.intervalRetrievalInnerFunction(), 5 * this.state.oneSecond)
+    this.setState({ intervalId })
+  }
+
+  intervalRetrievalInnerFunction () {
+    console.log('Smart retrieval')
+
+    const videoId = ExtractVideoId(this.state.youtubeVideoInput)
+
+    api.post(youtubeRetrieveVideoAdhocResults, {
+      username: this.state.username,
+      youtubeVideoInput: videoId
+    }, {
+      withCredentials: true
+    }
+    ).then(response => {
+      if (response.data.operation_success) {
+        this.setState({ commentsAcquisitionInitiated: false })
+        this.setState({ noPreviousResults: false })
+
+        this.setState({ youtubeVideoInput: response.data.responsePayload.video_id })
+
+        this.populateOverallEmoResultTable(response.data.responsePayload.average_emo_breakdown)
+        this.populateCommentsResultTable(response.data.responsePayload)
+
+        clearInterval(this.state.intervalId)
+      } else {
+        console.log('Comments still being analysed')
+      }
+    }
+    )
   }
 
   render () {
@@ -248,6 +296,20 @@ class VideoAdHocAnalysisPage extends Component {
               </Text>
               <br></br>
             </View>
+          }
+          {this.state.commentsAcquisitionInitiated &&
+          <View>
+            <br></br>
+            <br></br>
+            <View style={{ alignItems: 'center' }}>
+              <ClipLoader
+                color={'#e75fa6'}
+                size={200}
+                aria-label="Loading Spinner"
+                data-testid="loader"
+              />
+            </View>
+          </View>
           }
 
           <br></br>
