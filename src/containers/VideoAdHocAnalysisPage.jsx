@@ -25,9 +25,11 @@ class VideoAdHocAnalysisPage extends Component {
 
     let commentsAcquisitionInitiated
     if (this.props.videoAdHocSmartRetrieval.validated) {
+      console.log('Toggling comments acquisition initiated to True')
       commentsAcquisitionInitiated = true
     } else {
       commentsAcquisitionInitiated = false
+      console.log('Toggling comments acquisition initiated to False')
     }
 
     this.state = {
@@ -61,6 +63,8 @@ class VideoAdHocAnalysisPage extends Component {
       smartRetrievalOnGoing: false
     }
 
+    this.intervalRetrievalInnerFunction.bind(this)
+
     api.post(youtubeRetrieveVideoAdhocResults, {
       username: this.props.accountData.accountData.payload.emailAddress
     }, {
@@ -81,7 +85,7 @@ class VideoAdHocAnalysisPage extends Component {
 
           this.props.activateVideoAdHocSmartRetrieval()
 
-          console.log(this.props)
+          console.log('Smart retrieval toggle is ' + this.props.videoAdHocSmartRetrieval.validated)
           if (this.props.videoAdHocSmartRetrieval.validated) {
             this.retrievePreviousResults()
           }
@@ -106,8 +110,25 @@ class VideoAdHocAnalysisPage extends Component {
     }
   }
 
-  componentDidUpdate () {
+  componentDidUpdate (prevProps, prevState) {
     this.scrollToResults()
+
+    console.log('Component did update')
+    console.log(prevProps.videoAdHocSmartRetrieval.validated)
+    console.log(this.props.videoAdHocSmartRetrieval.validated)
+    if (prevProps.videoAdHocSmartRetrieval.validated !== this.props.videoAdHocSmartRetrieval.validated) {
+      console.log('Forcing an update')
+
+      if (this.props.videoAdHocSmartRetrieval.validated) {
+        console.log('Toggling comments acquisition initiated to True')
+        this.setState({ commentsAcquisitionInitiated: true })
+      } else {
+        console.log('Toggling comments acquisition initiated to False')
+        this.setState({ commentsAcquisitionInitiated: false })
+      }
+
+      this.forceUpdate()
+    }
   }
 
   handleCommentAcquisitionSubmit = (e) => {
@@ -245,7 +266,7 @@ class VideoAdHocAnalysisPage extends Component {
   }
 
   retrievePreviousResults () {
-    const intervalId = setInterval(this.intervalRetrievalInnerFunction(), 5 * this.state.oneSecond)
+    const intervalId = setInterval(this.intervalRetrievalInnerFunction, 5 * this.state.oneSecond)
     this.setState({ intervalId })
   }
 
