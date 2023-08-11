@@ -70,7 +70,7 @@ class VideoAdHocAnalysisPage extends Component {
       published_date: ''
     }
 
-    this.intervalRetrievalInnerFunction.bind(this)
+    // this.intervalRetrievalInnerFunction.bind(this)
 
     api.post(youtubeRetrieveVideoAdhocResults, {
       username: this.props.accountData.accountData.payload.emailAddress
@@ -339,45 +339,46 @@ class VideoAdHocAnalysisPage extends Component {
   }
 
   retrievePreviousResults () {
-    const intervalId = setInterval(this.intervalRetrievalInnerFunction, 5 * this.state.oneSecond)
-    this.setState({ intervalId })
-  }
-
-  intervalRetrievalInnerFunction () {
-    console.log('Smart retrieval')
-
-    const videoId = ExtractVideoId(this.state.youtubeVideoInput)
-
-    api.post(youtubeRetrieveVideoAdhocResults, {
-      username: this.state.username,
-      youtubeVideoInput: videoId
-    }, {
-      withCredentials: true
-    }
-    ).then(response => {
-      if (response.data.operation_success) {
-        this.setState({ commentsAcquisitionInitiated: false })
-        this.setState({ noPreviousResults: false })
-
-        this.setState({ youtubeVideoInput: response.data.responsePayload.video_id })
-
-        this.populateOverallEmoResultTable(response.data.responsePayload.average_emo_breakdown)
-        this.populateCommentsResultTable(response.data.responsePayload)
-
-        clearInterval(this.state.intervalId)
-      } else {
-        if (response.data.error_message === 'still_analysing') {
-          console.log('Comments still being analysed')
+    function intervalRetrievalInnerFunction (self) {
+      console.log('Smart retrieval')
+  
+      const videoId = ExtractVideoId(self.state.youtubeVideoInput)
+  
+      api.post(youtubeRetrieveVideoAdhocResults, {
+        username: self.state.username,
+        youtubeVideoInput: videoId
+      }, {
+        withCredentials: true
+      }
+      ).then(response => {
+        if (response.data.operation_success) {
+          self.setState({ commentsAcquisitionInitiated: false })
+          self.setState({ noPreviousResults: false })
+  
+          self.setState({ youtubeVideoInput: response.data.responsePayload.video_id })
+  
+          self.populateOverallEmoResultTable(response.data.responsePayload.average_emo_breakdown)
+          self.populateCommentsResultTable(response.data.responsePayload)
+  
+          clearInterval(self.state.intervalId)
         } else {
-          console.log('Nothing returned at all')
-          this.setState({ noResultsToReturn: true })
-          this.setState({ commentsAcquisitionInitiated: false })
-          this.props.deactivateVideoAdHocSmartRetrieval()
-          this.forceUpdate()
+          if (response.data.error_message === 'still_analysing') {
+            console.log('Comments still being analysed')
+          } else {
+            console.log('Nothing returned at all')
+            self.setState({ noResultsToReturn: true })
+            self.setState({ commentsAcquisitionInitiated: false })
+            self.props.deactivateVideoAdHocSmartRetrieval()
+            self.forceUpdate()
+          }
         }
       }
+      )
     }
-    )
+
+    const self = this
+    const intervalId = setInterval(function () { intervalRetrievalInnerFunction(self) }, 5 * this.state.oneSecond)
+    this.setState({ intervalId })
   }
 
   simpleAdHocRetrieve () {
