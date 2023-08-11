@@ -14,6 +14,10 @@ import ReaverageEmoBreakdown from '../utils/ReaverageEmoBreakdown'
 import ExtractVideoId from '../utils/url_manipulator_helpers/ExtractVideoId'
 import ClipLoader from 'react-spinners/ClipLoader'
 import { activateVideoAdHocSmartRetrieval, deactivateVideoAdHocSmartRetrieval } from '../store/Slices/VideoAdHocSmartRetrievalSlice'
+import Typography from '@mui/material/Typography'
+import DateFormatterToNaturalLanguage from '../utils/DateFormatterToNaturalLanguage'
+
+const { vw, vh, vmin, vmax } = require('react-native-viewport-units')
 
 class VideoAdHocAnalysisPage extends Component {
   constructor (props) {
@@ -60,7 +64,10 @@ class VideoAdHocAnalysisPage extends Component {
       oneSecond: 1000,
       intervalId: '',
       username: this.props.accountData.accountData.payload.emailAddress,
-      smartRetrievalOnGoing: false
+      smartRetrievalOnGoing: false,
+      publisher: '',
+      video_title: '',
+      published_date: ''
     }
 
     this.intervalRetrievalInnerFunction.bind(this)
@@ -121,6 +128,7 @@ class VideoAdHocAnalysisPage extends Component {
 
       if (this.props.videoAdHocSmartRetrieval.validated) {
         console.log('Toggling comments acquisition initiated to True')
+        this.retrievePreviousResults()
         this.setState({ commentsAcquisitionInitiated: true })
       } else {
         console.log('Toggling comments acquisition initiated to False')
@@ -133,6 +141,8 @@ class VideoAdHocAnalysisPage extends Component {
 
   handleCommentAcquisitionSubmit = (e) => {
     e.preventDefault()
+
+    this.clearEmoResults()
 
     const videoId = ExtractVideoId(this.state.youtubeVideoInput)
 
@@ -263,6 +273,69 @@ class VideoAdHocAnalysisPage extends Component {
 
     this.setState({ videoEmbeddedUrl: data.video_data.url })
     this.setState({ channelYTCommentsResultTableData })
+    this.setState({ publisher: data.video_data.publisher })
+    this.setState({ published_date: DateFormatterToNaturalLanguage(data.video_data.published_date) })
+    this.setState({ video_title: data.video_data.title })
+  }
+
+  /*
+    youtubeVideoInput: '',
+    channelOverallEmoResultTableData: [],
+    channelYTCommentsResultTableData: [],
+    noResultsToReturn: false,
+    noPreviousResults: true,
+    commentsAcquisitionInitiated,
+    anyResponseFromServer: false,
+    // usernameToUse,
+    // videoNumber: 5,
+    videoEmbeddedUrl: '',
+    topNAnger: '',
+    topNDisgust: '',
+    topNFear: '',
+    topNJoy: '',
+    topNNeutral: '',
+    topNSadness: '',
+    topNSurprise: '',
+    top_n_anger_average_emo_breakdown: '',
+    top_n_disgust_average_emo_breakdown: '',
+    top_n_fear_average_emo_breakdown: '',
+    top_n_joy_average_emo_breakdown: '',
+    top_n_neutral_average_emo_breakdown: '',
+    top_n_sadness_average_emo_breakdown: '',
+    top_n_surprise_average_emo_breakdown: '',
+    oneSecond: 1000,
+    intervalId: '',
+    username: this.props.accountData.accountData.payload.emailAddress,
+    smartRetrievalOnGoing: false,
+    publisher: '',
+    video_title: '',
+    published_date: ''
+  */
+
+  clearEmoResults () {
+    this.setState({ channelOverallEmoResultTableData: [] })
+
+    this.setState({ top_n_anger_average_emo_breakdown: '' })
+    this.setState({ top_n_disgust_average_emo_breakdown: '' })
+    this.setState({ top_n_fear_average_emo_breakdown: '' })
+    this.setState({ top_n_joy_average_emo_breakdown: '' })
+    this.setState({ top_n_neutral_average_emo_breakdown: '' })
+    this.setState({ top_n_sadness_average_emo_breakdown: '' })
+    this.setState({ top_n_surprise_average_emo_breakdown: '' })
+
+    this.setState({ topNAnger: '' })
+    this.setState({ topNDisgust: '' })
+    this.setState({ topNFear: '' })
+    this.setState({ topNJoy: '' })
+    this.setState({ topNNeutral: '' })
+    this.setState({ topNSadness: '' })
+    this.setState({ topNSurprise: '' })
+
+    this.setState({ videoEmbeddedUrl: '' })
+    this.setState({ channelYTCommentsResultTableData: [] })
+    this.setState({ publisher: '' })
+    this.setState({ published_date: '' })
+    this.setState({ video_title: '' })
   }
 
   retrievePreviousResults () {
@@ -302,6 +375,31 @@ class VideoAdHocAnalysisPage extends Component {
           this.props.deactivateVideoAdHocSmartRetrieval()
           this.forceUpdate()
         }
+      }
+    }
+    )
+  }
+
+  simpleAdHocRetrieve () {
+    const videoId = ExtractVideoId(this.state.youtubeVideoInput)
+
+    api.post(youtubeRetrieveVideoAdhocResults, {
+      username: this.state.username,
+      youtubeVideoInput: videoId
+    }, {
+      withCredentials: true
+    }
+    ).then(response => {
+      if (response.data.operation_success) {
+        this.setState({ commentsAcquisitionInitiated: false })
+        this.setState({ noPreviousResults: false })
+
+        this.setState({ youtubeVideoInput: response.data.responsePayload.video_id })
+
+        this.populateOverallEmoResultTable(response.data.responsePayload.average_emo_breakdown)
+        this.populateCommentsResultTable(response.data.responsePayload)
+
+        clearInterval(this.state.intervalId)
       }
     }
     )
@@ -363,14 +461,33 @@ class VideoAdHocAnalysisPage extends Component {
           <br></br>
 
           {!this.state.commentsAcquisitionInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults &&
-            <iframe
-                width="560"
-                height="315"
-                src={this.state.videoEmbeddedUrl}
-                title="YouTube video player"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen></iframe>
+            <View>
+              <Typography sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }} color="text.secondary">
+                {this.state.video_title}
+              </Typography>
+              <Typography sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }} color="text.secondary">
+                {this.state.publisher}
+              </Typography>
+              <Typography sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }} color="text.secondary">
+                {this.state.published_date}
+              </Typography>
+            </View>
+          }
+          {!this.state.commentsAcquisitionInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults &&
+            <View>
+              <br></br>
+              {this.state.videoEmbeddedUrl === '' &&
+                this.simpleAdHocRetrieve()
+              }
+              <iframe
+                  width="560"
+                  height="315"
+                  src={this.state.videoEmbeddedUrl}
+                  title="YouTube video player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen></iframe>
+            </View>
           }
 
           <br></br>
