@@ -170,6 +170,8 @@ class VideoAdHocAnalysisPage extends Component {
           console.log('Not enough time elapsed')
           if (this.props.videoAdHocSmartRetrieval.validated) {
             this.retrievePreviousResults()
+          } else {
+            this.simpleAdHocRetrieve()
           }
         } else {
           console.log('Nothing returned at all')
@@ -341,9 +343,9 @@ class VideoAdHocAnalysisPage extends Component {
   retrievePreviousResults () {
     function intervalRetrievalInnerFunction (self) {
       console.log('Smart retrieval')
-  
+
       const videoId = ExtractVideoId(self.state.youtubeVideoInput)
-  
+
       api.post(youtubeRetrieveVideoAdhocResults, {
         username: self.state.username,
         youtubeVideoInput: videoId
@@ -354,12 +356,12 @@ class VideoAdHocAnalysisPage extends Component {
         if (response.data.operation_success) {
           self.setState({ commentsAcquisitionInitiated: false })
           self.setState({ noPreviousResults: false })
-  
+
           self.setState({ youtubeVideoInput: response.data.responsePayload.video_id })
-  
+
           self.populateOverallEmoResultTable(response.data.responsePayload.average_emo_breakdown)
           self.populateCommentsResultTable(response.data.responsePayload)
-  
+
           clearInterval(self.state.intervalId)
         } else {
           if (response.data.error_message === 'still_analysing') {

@@ -20,9 +20,9 @@ function SessionController () {
   return (
     <View>
     {autoLogout &&
-        <View>
-            <ManualStoreClearing />
-        </View>
+      <View>
+          <ManualStoreClearing />
+      </View>
     }
     </View>
   )

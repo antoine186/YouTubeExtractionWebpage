@@ -5,12 +5,17 @@ import { clearStripeCustomerId } from '../../store/Slices/StripeCustomerIdSlice'
 import { clearstripeSubscription } from '../../store/Slices/StripeSubscriptionSlice'
 import { invalidateUserSession } from '../../store/Slices/UserSessionSlice'
 import { clearValidSubscription } from '../../store/Slices/ValidSubscriptionSlice'
+import Cookies from 'js-cookie'
 
 import { connect } from 'react-redux'
 import ClearEntireStore from './ClearEntireStore'
 
 function ManualStoreClearing (props) {
   console.log('Clearing entire store')
+
+  Cookies.remove('user_session_cookie')
+  Cookies.remove('__stripe_sid')
+  Cookies.remove('__stripe_mid')
 
   ClearEntireStore()
   console.log('Tried dispatch')

@@ -163,7 +163,7 @@ class YTCommentsBasicResultCard extends Component {
                 <CardActions>
                     {!this.state.promptingChatGpt &&
                       <Button size="small" onClick={this.handleSubmit} style={{ textAlign: 'left' }}>
-                        WHAT DOES MY AUDIENCE THINK?
+                        WHAT MAKES MY AUDIENCE {this.state.emoIcon}?
                       </Button>
                     }
                     {this.state.commentsSummaryExpand &&
