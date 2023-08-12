@@ -17,12 +17,15 @@ import { activateVideoAdHocSmartRetrieval, deactivateVideoAdHocSmartRetrieval } 
 import Typography from '@mui/material/Typography'
 import DateFormatterToNaturalLanguage from '../utils/DateFormatterToNaturalLanguage'
 import CookieSessionChecker from '../utils/CookiesSessions/CookieSessionChecker'
+import WaitInSeconds from '../utils/timing_utils/WaitInSeconds'
 
 const { vw, vh, vmin, vmax } = require('react-native-viewport-units')
 
 class VideoAdHocAnalysisPage extends Component {
   constructor (props) {
     super(props)
+
+    WaitInSeconds(1)
 
     this.resultsRef = React.createRef()
 

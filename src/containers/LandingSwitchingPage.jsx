@@ -18,10 +18,8 @@ import Video4AnalysisPage from './Video4AnalysisPage'
 import Video5AnalysisPage from './Video5AnalysisPage'
 import { api, basicAccountCreateUrl } from '../utils/backend_configuration/BackendConfig'
 import GenerateRandomString from '../utils/GenerateRandomString'
-import { setAnonSession } from '../store/Slices/AnonSessionSlice'
 import ChannelSearchPage from './ChannelSearchPage'
 import VideoAdHocAnalysisPage from './VideoAdHocAnalysisPage'
-import CookieSessionChecker from '../utils/CookiesSessions/CookieSessionChecker'
 
 class LandingSwitchingPage extends Component {
   constructor (props) {

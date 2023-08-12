@@ -6,6 +6,7 @@ import { clearstripeSubscription } from '../../store/Slices/StripeSubscriptionSl
 import { invalidateUserSession } from '../../store/Slices/UserSessionSlice'
 import { clearValidSubscription } from '../../store/Slices/ValidSubscriptionSlice'
 import Cookies from 'js-cookie'
+import { api, removeSession } from '../backend_configuration/BackendConfig'
 
 import { connect } from 'react-redux'
 import ClearEntireStore from './ClearEntireStore'
@@ -17,6 +18,13 @@ function ManualStoreClearing (props) {
   Cookies.remove('__stripe_sid')
   Cookies.remove('__stripe_mid')
 
+  api.post(removeSession, {
+    username: props.accountData.accountData.payload.emailAddress
+  }, {
+    withCredentials: true
+  }
+  )
+
   ClearEntireStore()
   console.log('Tried dispatch')
   props.clearAccountData()
@@ -27,6 +35,12 @@ function ManualStoreClearing (props) {
   props.invalidateUserSession()
   props.clearValidSubscription()
   console.log('Dispatch worked')
+}
+
+const mapStateToProps = state => {
+  return {
+    accountData: state.accountData
+  }
 }
 
 const mapDispatchToProps = (dispatch) => {
@@ -41,4 +55,4 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export default connect(null, mapDispatchToProps)(ManualStoreClearing)
+export default connect(mapStateToProps, mapDispatchToProps)(ManualStoreClearing)

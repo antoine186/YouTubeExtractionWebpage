@@ -43,6 +43,7 @@ export const commentsChatgptQuestioning = './comments-chatgpt-questioning'
 export const commentsChatgptEmoElaboration = './comments-chatgpt-emo-elaboration'
 export const youtubeVideoAdhocAnalyse = './youtube-video-adhoc-analyse'
 export const youtubeRetrieveVideoAdhocResults = './youtube-retrieve-video-adhoc-results'
+export const removeSession = './remove-session'
 
 export const api = axios.create({
   baseURL: backendUrl
