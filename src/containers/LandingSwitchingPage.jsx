@@ -146,7 +146,6 @@ class LandingSwitchingPage extends Component {
     if (!this.state.userSessionValidated) {
       return (
         <View>
-            <CookieSessionChecker />
             <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
             <Navigate to='/login' />
         </View>
@@ -154,7 +153,6 @@ class LandingSwitchingPage extends Component {
     } else if (this.props.validSubscription.validSubscription.payload !== undefined && this.props.validSubscription.validSubscription.payload) {
       return (
       <View>
-          <CookieSessionChecker />
           <TopBar settingsEnabled={true} />
           <View style={styles.container}>
               <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -289,7 +287,6 @@ class LandingSwitchingPage extends Component {
     } else if (this.state.userSessionValidated && !this.props.validSubscription.validSubscription.payload) {
       return (
       <View>
-          <CookieSessionChecker />
           <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
           <Navigate to='/payment' />
       </View>

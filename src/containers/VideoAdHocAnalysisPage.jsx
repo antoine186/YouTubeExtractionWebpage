@@ -16,6 +16,7 @@ import ClipLoader from 'react-spinners/ClipLoader'
 import { activateVideoAdHocSmartRetrieval, deactivateVideoAdHocSmartRetrieval } from '../store/Slices/VideoAdHocSmartRetrievalSlice'
 import Typography from '@mui/material/Typography'
 import DateFormatterToNaturalLanguage from '../utils/DateFormatterToNaturalLanguage'
+import CookieSessionChecker from '../utils/CookiesSessions/CookieSessionChecker'
 
 const { vw, vh, vmin, vmax } = require('react-native-viewport-units')
 
@@ -411,6 +412,7 @@ class VideoAdHocAnalysisPage extends Component {
   render () {
     return (
       <View style={styles.subcontainer}>
+          <CookieSessionChecker />
           <Text style={styles.text}>For support, please email antoine.tian@emomachines.xyz</Text>
 
         <View style={styles.innerContainer}>
