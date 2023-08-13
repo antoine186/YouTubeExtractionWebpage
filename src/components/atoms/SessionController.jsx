@@ -8,6 +8,7 @@ function SessionController () {
 
   useEffect(() => {
     const interval = setInterval(() => {
+      console.log('Auto logging out!')
       setAutoLogout(true)
     }, timeTowardsAutoLogout)
 

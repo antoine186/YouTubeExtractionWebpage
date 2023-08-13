@@ -4,8 +4,10 @@ import CookieString2DictConverter from './CookieString2DictConverter'
 import ManualStoreClearing from '../session_helpers/ManualStoreClearing'
 import React from 'react'
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Icon, Image } from 'react-native'
+import { connect } from 'react-redux'
+import { setSessionLogout } from '../../store/Slices/SessionLogoutSlice'
 
-function CookieSessionChecker () {
+function CookieSessionChecker (props) {
   const [sessionLogout, setSessionLogout] = React.useState(false)
 
   let userSessionCookie = Cookies.get('user_session_cookie')
@@ -38,6 +40,10 @@ function CookieSessionChecker () {
       }
     }
     )
+  } else {
+    console.log('Cookie is null')
+
+    props.setSessionLogout()
   }
 
   return (
@@ -45,8 +51,25 @@ function CookieSessionChecker () {
     {sessionLogout &&
       <ManualStoreClearing />
     }
+    {props.sessionLogoutState.sessionLogoutState &&
+      <ManualStoreClearing />
+    }
     </View>
   )
 }
 
-export default CookieSessionChecker
+const mapStateToProps = state => {
+  return {
+    sessionLogoutState: state.sessionLogoutState
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    setSessionLogout: (value) => dispatch(setSessionLogout(value))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(CookieSessionChecker)
+
+//export default CookieSessionChecker

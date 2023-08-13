@@ -30,7 +30,7 @@ function App () {
                     </Routes>
                 </HashRouter>
         </PersistGate>
-        <SessionController />
+        {/*<SessionController />*/}
     </Provider>
   )
 }

@@ -11,6 +11,7 @@ import { setValidSubscription } from '../store/Slices/ValidSubscriptionSlice'
 import { setstripeSubscription } from '../store/Slices/StripeSubscriptionSlice'
 import { setAccountData } from '../store/Slices/AccountDataSlice'
 import { userInputFieldMaxCharacterEmail } from '../utils/user_input_config/UserInputConfig'
+import { clearSessionLogout } from '../store/Slices/SessionLogoutSlice'
 
 function Login () {
   const [username, setUsername] = useState('')
@@ -46,6 +47,7 @@ function Login () {
     ).then(response => {
       if (response.data.operation_success) {
         dispatch(validateUserSession())
+        dispatch(clearSessionLogout())
 
         api.post(retrieveAccountData, {
           username
