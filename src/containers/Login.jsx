@@ -16,6 +16,7 @@ function Login () {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [passIncorrect, setPassIncorrect] = useState(false)
+  const [tooManySessionsActive, setTooManySessionsActive] = useState(false)
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
@@ -43,7 +44,7 @@ function Login () {
       withCredentials: true
     }
     ).then(response => {
-      if (response.data) {
+      if (response.data.operation_success) {
         dispatch(validateUserSession())
 
         api.post(retrieveAccountData, {
@@ -102,7 +103,14 @@ function Login () {
 
         // navigate('/home')
       } else {
-        setPassIncorrect(true)
+        console.log('Authentication is false')
+        if (response.data.error_message === 'one_session_already_active') {
+          console.log('Too many sessions active')
+          setTooManySessionsActive(true)
+        } else if (response.data.error_message === 'wrong_credentials') {
+          console.log('Credentials incorrect')
+          setPassIncorrect(true)
+        }
       }
     }
     )
@@ -118,6 +126,18 @@ function Login () {
     navigate('/forgot-password')
   }
 
+  function userNameChanged (email) {
+    setTooManySessionsActive(false)
+    setPassIncorrect(false)
+    setUsername(email)
+  }
+
+  function passwordChanged (password) {
+    setTooManySessionsActive(false)
+    setPassIncorrect(false)
+    setPassword(password)
+  }
+
   if (userSessionValidated) {
     return <Navigate to='/' />
   } else {
@@ -131,7 +151,7 @@ function Login () {
             style={styles.textInput}
             placeholder="Email"
             placeholderTextColor="#003f5c"
-            onChangeText={(email) => setUsername(email)}
+            onChangeText={(email) => userNameChanged(email)}
             maxLength={userInputFieldMaxCharacterEmail}
           />
         </View>
@@ -141,7 +161,7 @@ function Login () {
             placeholder="Password"
             placeholderTextColor="#003f5c"
             secureTextEntry={true}
-            onChangeText={(password) => setPassword(password)}
+            onChangeText={(password) => passwordChanged(password)}
             maxLength={userInputFieldMaxCharacter}
           />
         </View>
@@ -149,6 +169,14 @@ function Login () {
           <View>
             <Text style={styles.text}>
               Incorrect credentials
+            </Text>
+            <br></br>
+          </View>
+        }
+        {tooManySessionsActive &&
+          <View>
+            <Text style={styles.text}>
+              Too many sessions logged in. Please logout your other sessions.
             </Text>
             <br></br>
           </View>

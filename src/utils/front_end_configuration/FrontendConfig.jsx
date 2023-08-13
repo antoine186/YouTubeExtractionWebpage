@@ -1,2 +1,11 @@
+import { debugSwitchedOn } from '../debug_switch/DebugSwitch'
 
-export const testingLocally = true
+let intermediaryBool
+
+if (debugSwitchedOn) {
+  intermediaryBool = true
+} else {
+  intermediaryBool = false
+}
+
+export const testingLocally = intermediaryBool

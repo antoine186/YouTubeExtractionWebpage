@@ -1,7 +1,24 @@
 import axios from 'axios'
+import { debugSwitchedOn, backendUrlProd, backendUrlDebug } from '../debug_switch/DebugSwitch'
 
-export const backendUrl = 'http://localhost:80/api'
-// export const backendUrl = 'https://emomachinesbackend.xyz/api'
+let intermediaryBool
+
+if (debugSwitchedOn) {
+  intermediaryBool = true
+} else {
+  intermediaryBool = false
+}
+
+export const localTestingUrl = intermediaryBool
+
+let intermediaryUrl
+if (localTestingUrl) {
+  intermediaryUrl = backendUrlDebug
+} else {
+  intermediaryUrl = backendUrlProd
+}
+
+export const backendUrl = intermediaryUrl
 export const loginAuthUrl = '/auth-login'
 export const sessionAuthUrl = '/session-validate'
 export const searchUrl = '/search'

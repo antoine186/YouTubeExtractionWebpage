@@ -1,13 +1,10 @@
 import React, { useEffect } from 'react'
 import ManualStoreClearing from '../../utils/session_helpers/ManualStoreClearing'
-
+import { timeTowardsAutoLogout } from '../../utils/session_configuration/SessionConfig'
 import { TouchableOpacity, Text, View, Image, TextInput } from 'react-native'
 
 function SessionController () {
   const [autoLogout, setAutoLogout] = React.useState(false)
-
-  const oneSecond = 1000
-  const timeTowardsAutoLogout = 7200 * oneSecond
 
   useEffect(() => {
     const interval = setInterval(() => {

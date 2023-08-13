@@ -1,2 +1,11 @@
+import { debugSwitchedOn } from "../debug_switch/DebugSwitch"
 
-export const mockingConfig = false
+let intermediaryBool
+
+if (debugSwitchedOn) {
+  intermediaryBool = true
+} else {
+  intermediaryBool = false
+}
+
+export const mockingConfig = intermediaryBool
