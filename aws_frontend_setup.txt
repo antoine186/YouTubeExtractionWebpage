@@ -1,0 +1,23 @@
+
+) Install node and npm
+
+- sudo apt-get update
+- sudo apt-get upgrade
+- sudo apt-get install npm
+- npm install serve@13.0.4
+
+) Configure the NGINX file initially
+
+- sudo apt install nginx
+- sudo nano /etc/nginx/sites-available/default
+- Input NGINX settings from "NGINX Settings Copy Paste.txt"
+- sudo systemctl restart nginx
+
+) Encrypt server using certbot
+
+- sudo apt install certbot python3-certbot-nginx
+- sudo certbot --nginx
+- Enter both domains to encrypt: 1) www.domain.xyz & 2) domain.xyz
+
+!!! If things go wrong, you can nuke your NGINX settings using:
+sudo apt purge nginx nginx-common nginx-core

@@ -1,0 +1,7 @@
+server {
+	server_name emomachines.xyz www.emomachines.xyz;
+
+	location / {
+		proxy_pass http://172.31.6.196:3000;
+	}
+}
