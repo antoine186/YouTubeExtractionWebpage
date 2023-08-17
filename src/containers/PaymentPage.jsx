@@ -160,7 +160,8 @@ class PaymentPage extends Component {
       api.post(subscriptionCreate, {
         priceId: basicSubscriptionPriceId,
         stripeCustomerId: this.props.stripeCustomerId.stripeCustomerId.payload.stripe_customer_id,
-        emailAddress: this.props.accountData.accountData.payload.emailAddress
+        emailAddress: this.props.accountData.accountData.payload.emailAddress,
+        userSessionValidated: this.props.userSession.validated
       }, {
         withCredentials: true
       }
@@ -225,6 +226,13 @@ class PaymentPage extends Component {
           <Text style={styles.titleText}>
             Your Payment Details - {basicSubscriptionPricePerMonth} USD/Month Subscription
           </Text>
+          <br></br>
+          {!this.props.userSession.validated &&
+            <Text style={styles.titleText2}>
+              !!! Enjoy a 1 week free trial by filling in payment details below... !!!
+            </Text>
+          }
+          <br></br>
           {(this.props.userSession.validated && !this.props.validSubscription.validSubscription.payload) &&
             <View>
               <Text style={styles.titleText2}>

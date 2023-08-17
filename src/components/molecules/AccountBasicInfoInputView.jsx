@@ -68,7 +68,7 @@ class AccountBasicInfoInputView extends React.Component {
   }
 
   setConfirmedPassword (password) {
-    this.setState({ password })
+    this.setState({ confirmedPassword: password })
     this.state.confirmedPasswordGrabber(password)
   }
 
@@ -159,6 +159,7 @@ class AccountBasicInfoInputView extends React.Component {
             style={styles.textInput}
             placeholder="Password"
             placeholderTextColor="#003f5c"
+            value={this.state.password}
             secureTextEntry={true}
             onChangeText={password => this.setPassword(password)}
             maxLength={userInputFieldMaxCharacter}
