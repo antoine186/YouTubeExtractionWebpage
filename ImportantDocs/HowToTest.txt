@@ -1,10 +1,12 @@
 <!--- On CMD, on local build ---->
 
-npm start
+- npm start
 
 <!--- On prod ---->
 
 expo build:web
 # Export content of web_build to prod server
 
-npx serve
+- sudo apt-get install tmux
+- tmux new -s frontend_session
+- npx serve
