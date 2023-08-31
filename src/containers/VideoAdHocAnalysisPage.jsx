@@ -181,7 +181,9 @@ class VideoAdHocAnalysisPage extends Component {
             this.simpleAdHocRetrieve()
           }
         } else if (response.data.error_message === 'not_enough_comments_to_generate_video_description') {
+          console.log('Not enough comments to perform analysis')
           this.setState({ notEnoughComments: true })
+          this.setState({ commentsAcquisitionInitiated: false })
         } else {
           console.log('Nothing returned at all')
           this.setState({ noResultsToReturn: true })
@@ -194,10 +196,10 @@ class VideoAdHocAnalysisPage extends Component {
       // Also add 'ERR_EMPTY_RESPONSE'
       if (error.code === 'ERR_BAD_RESPONSE') {
         console.log('Did not get a response yet, setting up smart retrieval')
-        //if (this.props.videoAdHocSmartRetrieval.validated) {
+        // if (this.props.videoAdHocSmartRetrieval.validated) {
         this.props.activateVideoAdHocSmartRetrieval()
         this.retrievePreviousResults()
-        //}
+        // }
       }
       /*
       console.log('Triggered timeout recovery')
@@ -414,6 +416,11 @@ class VideoAdHocAnalysisPage extends Component {
         this.populateCommentsResultTable(response.data.responsePayload)
 
         clearInterval(this.state.intervalId)
+      } else {
+        console.log('Nothing returned at all')
+        this.setState({ noResultsToReturn: true })
+        this.setState({ commentsAcquisitionInitiated: false })
+        this.forceUpdate()
       }
     }
     )
