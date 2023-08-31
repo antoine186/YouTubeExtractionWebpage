@@ -194,9 +194,10 @@ class VideoAdHocAnalysisPage extends Component {
       // Also add 'ERR_EMPTY_RESPONSE'
       if (error.code === 'ERR_BAD_RESPONSE') {
         console.log('Did not get a response yet, setting up smart retrieval')
-        if (this.props.videoAdHocSmartRetrieval.validated) {
-          this.retrievePreviousResults()
-        }
+        //if (this.props.videoAdHocSmartRetrieval.validated) {
+        this.props.activateVideoAdHocSmartRetrieval()
+        this.retrievePreviousResults()
+        //}
       }
       /*
       console.log('Triggered timeout recovery')
@@ -354,7 +355,7 @@ class VideoAdHocAnalysisPage extends Component {
       console.log('Smart retrieval')
 
       const videoId = ExtractVideoId(self.state.youtubeVideoInput)
-      this.setState({ notEnoughComments: false })
+      self.setState({ notEnoughComments: false })
 
       api.post(youtubeRetrieveVideoAdhocResults, {
         username: self.state.username,
