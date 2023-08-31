@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Icon, Image, Dimensions } from 'react-native'
-import { api, commentsChatgptQuestioning, commentsChatgptEmoElaboration } from '../../utils/backend_configuration/BackendConfig'
+import { api, commentsLlmQuestioning, commentsLlmEmoElaboration } from '../../utils/backend_configuration/BackendConfig'
 import styles from '../../utils/style_guide/MainWebpageStyle'
 // import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -11,6 +11,7 @@ import Typography from '@mui/material/Typography'
 import Collapse from '@mui/material/Collapse'
 import ArrayShuffle from '../../utils/ArrayShuffle'
 import { SpinnerRoundFilled } from 'spinners-react'
+import { llmModel } from '../../utils/llm_configuration/LlmConfiguration'
 const { vw, vh, vmin, vmax } = require('react-native-viewport-units')
 
 class YTCommentsBasicResultCard extends Component {
@@ -45,11 +46,11 @@ class YTCommentsBasicResultCard extends Component {
       topNComments: this.props.topNComments,
       commentsSummaryExpand: false,
       promptingChatGpt: false,
-      chatGptReply: '',
+      llmGptReply: '',
       topNEmoBreakdown: this.props.topNEmoBreakdown,
       emoElaborationPromptingChatGpt: false,
       emoElaborationCommentsSummaryExpand: false,
-      emoElaborationChatGptReply: ''
+      emoElaborationllmGptReply: ''
     }
   }
 
@@ -70,16 +71,17 @@ class YTCommentsBasicResultCard extends Component {
 
     const shuffledTopNComments = ArrayShuffle(this.state.topNComments)
 
-    api.post(commentsChatgptQuestioning, {
+    api.post(commentsLlmQuestioning, {
       top10ShuffledComments: shuffledTopNComments.slice(0, 10),
-      emoIcon: this.state.emoIcon
+      emoIcon: this.state.emoIcon,
+      llmModel
     }, {
       withCredentials: true
     }
     ).then(response => {
       console.log(this.state.promptingChatGpt)
       if (this.state.promptingChatGpt) {
-        this.setState({ chatGptReply: response.data.responsePayload.ChatGptReply })
+        this.setState({ llmGptReply: response.data.responsePayload.llmGptReply })
         this.setState({ promptingChatGpt: !this.state.promptingChatGpt })
       }
     }
@@ -95,7 +97,7 @@ class YTCommentsBasicResultCard extends Component {
 
     if (this.state.commentsSummaryExpand) {
       this.setState({ commentsSummaryExpand: !this.state.commentsSummaryExpand })
-      this.setState({ chatGptReply: '' })
+      this.setState({ llmGptReply: '' })
       this.setState({ promptingChatGpt: false })
     }
   }
@@ -111,16 +113,17 @@ class YTCommentsBasicResultCard extends Component {
 
     const shuffledTopNComments = ArrayShuffle(this.state.topNComments)
 
-    api.post(commentsChatgptEmoElaboration, {
+    api.post(commentsLlmEmoElaboration, {
       top10ShuffledComments: shuffledTopNComments.slice(0, 10),
-      emoIcon: this.state.emoIcon
+      emoIcon: this.state.emoIcon,
+      llmModel
     }, {
       withCredentials: true
     }
     ).then(response => {
       console.log(this.state.emoElaborationPromptingChatGpt)
       if (this.state.emoElaborationPromptingChatGpt) {
-        this.setState({ emoElaborationChatGptReply: response.data.responsePayload.emoElaborationChatGptReply })
+        this.setState({ emoElaborationllmGptReply: response.data.responsePayload.emoElaborationllmGptReply })
         this.setState({ emoElaborationPromptingChatGpt: !this.state.emoElaborationPromptingChatGpt })
       }
     }
@@ -136,7 +139,7 @@ class YTCommentsBasicResultCard extends Component {
 
     if (this.state.emoElaborationCommentsSummaryExpand) {
       this.setState({ emoElaborationCommentsSummaryExpand: !this.state.emoElaborationCommentsSummaryExpand })
-      this.setState({ emoElaborationChatGptReply: '' })
+      this.setState({ emoElaborationllmGptReply: '' })
       this.setState({ emoElaborationPromptingChatGpt: false })
     }
   }
@@ -171,7 +174,7 @@ class YTCommentsBasicResultCard extends Component {
                     }
                 </CardActions>
                 <CardActions>
-                  {!this.state.promptingChatGpt && this.state.chatGptReply !== '' &&
+                  {!this.state.promptingChatGpt && this.state.llmGptReply !== '' &&
                     <Button>(Click me again for more insight)</Button>
                   }
                 </CardActions>
@@ -183,20 +186,19 @@ class YTCommentsBasicResultCard extends Component {
                             </CardActions>
                         }
                         <Typography paragraph sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }}>
-                            {!this.state.promptingChatGpt && this.state.chatGptReply !== '' &&
+                            {!this.state.promptingChatGpt && this.state.llmGptReply !== '' &&
                                 <Typography sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }} color="text.secondary" gutterBottom>
                                     What made viewers {this.state.emoIcon}:
                                 </Typography>
                             }
-                            {!this.state.promptingChatGpt && this.state.chatGptReply !== '' &&
+                            {!this.state.promptingChatGpt && this.state.llmGptReply !== '' &&
                                 <View>
-                                    {this.state.chatGptReply}
+                                    {this.state.llmGptReply}
                                 </View>
                             }
                         </Typography>
                     </CardContent>
                 </Collapse>
-
                 <CardActions>
                     {this.state.emoIcon === '😃' && !this.state.emoElaborationPromptingChatGpt &&
                       <Button size="small" onClick={this.handleSubmitEmoElaboration} style={{ textAlign: 'left' }}>
@@ -242,7 +244,7 @@ class YTCommentsBasicResultCard extends Component {
                     }
                 </CardActions>
                 <CardActions>
-                  {!this.state.emoElaborationPromptingChatGpt && this.state.emoElaborationChatGptReply !== '' &&
+                  {!this.state.emoElaborationPromptingChatGpt && this.state.emoElaborationllmGptReply !== '' &&
                     <Button>(Click me again)</Button>
                   }
                 </CardActions>
@@ -254,14 +256,14 @@ class YTCommentsBasicResultCard extends Component {
                             </CardActions>
                         }
                         <Typography paragraph sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }}>
-                            {!this.state.emoElaborationPromptingChatGpt && this.state.emoElaborationChatGptReply !== '' &&
+                            {!this.state.emoElaborationPromptingChatGpt && this.state.emoElaborationllmGptReply !== '' &&
                                 <Typography sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }} color="text.secondary" gutterBottom>
                                     New content suggestion {this.state.emoIcon}:
                                 </Typography>
                             }
-                            {!this.state.emoElaborationPromptingChatGpt && this.state.emoElaborationChatGptReply !== '' &&
+                            {!this.state.emoElaborationPromptingChatGpt && this.state.emoElaborationllmGptReply !== '' &&
                                 <View>
-                                    {this.state.emoElaborationChatGptReply}
+                                    {this.state.emoElaborationllmGptReply}
                                 </View>
                             }
                         </Typography>

@@ -71,7 +71,8 @@ class VideoAdHocAnalysisPage extends Component {
       smartRetrievalOnGoing: false,
       publisher: '',
       video_title: '',
-      published_date: ''
+      published_date: '',
+      notEnoughComments: false
     }
 
     // this.intervalRetrievalInnerFunction.bind(this)
@@ -102,6 +103,7 @@ class VideoAdHocAnalysisPage extends Component {
           }
         } else {
           console.log('Nothing to return')
+          this.props.deactivateVideoAdHocSmartRetrieval()
         }
       }
     }
@@ -152,6 +154,7 @@ class VideoAdHocAnalysisPage extends Component {
 
     this.setState({ commentsAcquisitionInitiated: true })
     this.setState({ noResultsToReturn: false })
+    this.setState({ notEnoughComments: false })
 
     api.post(youtubeVideoAdhocAnalyse, {
       youtubeVideoInput: videoId,
@@ -177,6 +180,8 @@ class VideoAdHocAnalysisPage extends Component {
           } else {
             this.simpleAdHocRetrieve()
           }
+        } else if (response.data.error_message === 'not_enough_comments_to_generate_video_description') {
+          this.setState({ notEnoughComments: true })
         } else {
           console.log('Nothing returned at all')
           this.setState({ noResultsToReturn: true })
@@ -349,6 +354,7 @@ class VideoAdHocAnalysisPage extends Component {
       console.log('Smart retrieval')
 
       const videoId = ExtractVideoId(self.state.youtubeVideoInput)
+      this.setState({ notEnoughComments: false })
 
       api.post(youtubeRetrieveVideoAdhocResults, {
         username: self.state.username,
@@ -450,6 +456,15 @@ class VideoAdHocAnalysisPage extends Component {
               <br></br>
             </View>
           }
+          {this.state.notEnoughComments &&
+            <View>
+              <br></br>
+              <Text style={styles.errorText}>
+                The video has fewer than 50 comments, we are unable to perform good enough analysis...
+              </Text>
+              <br></br>
+            </View>
+          }
           {this.state.commentsAcquisitionInitiated &&
           <View>
             <br></br>
@@ -468,7 +483,7 @@ class VideoAdHocAnalysisPage extends Component {
           <br></br>
           <br></br>
 
-          {!this.state.commentsAcquisitionInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults &&
+          {!this.state.commentsAcquisitionInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults && !this.state.notEnoughComments &&
             <View>
               <Typography sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }} color="text.secondary">
                 {this.state.video_title}
@@ -481,7 +496,7 @@ class VideoAdHocAnalysisPage extends Component {
               </Typography>
             </View>
           }
-          {!this.state.commentsAcquisitionInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults &&
+          {!this.state.commentsAcquisitionInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults && !this.state.notEnoughComments &&
             <View>
               <br></br>
               {this.state.videoEmbeddedUrl === '' &&
@@ -501,7 +516,7 @@ class VideoAdHocAnalysisPage extends Component {
           <br></br>
           <br></br>
 
-          {!this.state.commentsAcquisitionInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults &&
+          {!this.state.commentsAcquisitionInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults && !this.state.notEnoughComments &&
           <View>
             <br></br>
             <YTCommentsOverallResultCard resultData={this.state.channelOverallEmoResultTableData} />

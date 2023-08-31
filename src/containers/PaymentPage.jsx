@@ -266,7 +266,7 @@ class PaymentPage extends Component {
                 options={{ clientSecret: this.props.stripeSubscription.stripeSubscription.payload.client_secret }}
                 key={this.props.stripeSubscription.stripeSubscription.payload.client_secret}
               >
-                <CheckoutForm amendPaymentMethod={false} />
+                <CheckoutForm amendPaymentMethod={false} confirmSetupInsteadOfPayment={!this.props.userSession.validated} />
               </Elements>
             </View>
           }

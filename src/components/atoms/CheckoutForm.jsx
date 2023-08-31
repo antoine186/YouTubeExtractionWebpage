@@ -36,14 +36,32 @@ export default function CheckoutForm (props) {
         }
       })
     } else { */
-    error = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
+    //error = await stripe.confirmPayment({
+      //elements,
+      //confirmParams: {
         // Make sure to change this to your payment completion page
-        return_url: `${window.location.origin}#/completion`
-      }
-    })
+        //return_url: `${window.location.origin}#/completion`
+      //}
+    //})
     //}
+
+    if (props.confirmSetupInsteadOfPayment) {
+      error = await stripe.confirmSetup({
+        elements,
+        confirmParams: {
+          // Make sure to change this to your payment completion page
+          return_url: `${window.location.origin}#/completion`
+        }
+      })
+    } else {
+      error = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          // Make sure to change this to your payment completion page
+          return_url: `${window.location.origin}#/completion`
+        }
+      })
+    }
 
     console.log(error)
 
