@@ -19,6 +19,8 @@ import DateFormatterToNaturalLanguage from '../utils/DateFormatterToNaturalLangu
 import CookieSessionChecker from '../utils/CookiesSessions/CookieSessionChecker'
 import WaitInSeconds from '../utils/timing_utils/WaitInSeconds'
 import { videoAdHocAnalysisSmartRetrievalLimit } from '../utils/smart_retrieval_configuration/SmartRetrievalConfiguration'
+import { llmModel } from '../utils/llm_configuration/LlmConfiguration'
+import YTCommentsDescriptionCard from '../components/molecules/YTCommentsDescriptionCard'
 
 const { vw, vh, vmin, vmax } = require('react-native-viewport-units')
 
@@ -81,7 +83,8 @@ class VideoAdHocAnalysisPage extends Component {
       hideNeutralCard: false,
       hideSadCard: false,
       hideDisgustCard: false,
-      numberOfSmartRetrievalAttempts: 0
+      numberOfSmartRetrievalAttempts: 0,
+      videoDescription: ''
     }
 
     // this.intervalRetrievalInnerFunction.bind(this)
@@ -97,6 +100,8 @@ class VideoAdHocAnalysisPage extends Component {
         this.setState({ noPreviousResults: false })
 
         this.setState({ youtubeVideoInput: response.data.responsePayload.video_id })
+
+        this.setState({ videoDescription: response.data.responsePayload.video_approximated_description })
 
         this.populateOverallEmoResultTable(response.data.responsePayload.average_emo_breakdown)
         this.populateCommentsResultTable(response.data.responsePayload)
@@ -167,7 +172,8 @@ class VideoAdHocAnalysisPage extends Component {
 
     api.post(youtubeVideoAdhocAnalyse, {
       youtubeVideoInput: videoId,
-      username: this.props.accountData.accountData.payload.emailAddress
+      username: this.props.accountData.accountData.payload.emailAddress,
+      llmModel
     }, {
       withCredentials: true
     }
@@ -178,6 +184,7 @@ class VideoAdHocAnalysisPage extends Component {
         console.log('Video adhoc analysis returned something!')
         this.setState({ commentsAcquisitionInitiated: false })
         this.setState({ noPreviousResults: false })
+        this.setState({ videoDescription: response.data.responsePayload.video_approximated_description })
         this.populateOverallEmoResultTable(response.data)
         this.populateCommentsResultTable(response.data)
         this.forceUpdate()
@@ -432,6 +439,7 @@ class VideoAdHocAnalysisPage extends Component {
 
           self.setState({ youtubeVideoInput: response.data.responsePayload.video_id })
 
+          self.setState({ videoDescription: response.data.responsePayload.video_approximated_description })
           self.populateOverallEmoResultTable(response.data.responsePayload.average_emo_breakdown)
           self.populateCommentsResultTable(response.data.responsePayload)
 
@@ -490,6 +498,7 @@ class VideoAdHocAnalysisPage extends Component {
 
         this.setState({ youtubeVideoInput: response.data.responsePayload.video_id })
 
+        this.setState({ videoDescription: response.data.responsePayload.video_approximated_description })
         this.populateOverallEmoResultTable(response.data.responsePayload.average_emo_breakdown)
         this.populateCommentsResultTable(response.data.responsePayload)
 
@@ -605,7 +614,13 @@ class VideoAdHocAnalysisPage extends Component {
           {!this.state.commentsAcquisitionInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults && !this.state.notEnoughComments &&
           <View>
             <br></br>
-            <YTCommentsOverallResultCard resultData={this.state.channelOverallEmoResultTableData} />
+            <View style={styles.innerContainer}>
+              <YTCommentsDescriptionCard descriptionData={this.state.videoDescription} />
+            </View>
+            <br></br>
+            <View style={styles.innerContainer}>
+              <YTCommentsOverallResultCard resultData={this.state.channelOverallEmoResultTableData} />
+            </View>
             <br></br>
             <View style={styles.innerContainer}>
               <YTCommentsBasicResultCard

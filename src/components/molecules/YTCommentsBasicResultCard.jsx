@@ -45,10 +45,10 @@ class YTCommentsBasicResultCard extends Component {
       sizeScaler,
       topNComments: this.props.topNComments,
       commentsSummaryExpand: false,
-      promptingChatGpt: false,
+      promptingLlm: false,
       llmGptReply: '',
       topNEmoBreakdown: this.props.topNEmoBreakdown,
-      emoElaborationPromptingChatGpt: false,
+      emoElaborationPromptingLlm: false,
       emoElaborationCommentsSummaryExpand: false,
       emoElaborationllmGptReply: '',
       hideCard: this.props.hideCard
@@ -68,7 +68,7 @@ class YTCommentsBasicResultCard extends Component {
       this.setState({ commentsSummaryExpand: !this.state.commentsSummaryExpand })
     }
 
-    this.setState({ promptingChatGpt: !this.state.promptingChatGpt })
+    this.setState({ promptingLlm: !this.state.promptingLlm })
 
     const shuffledTopNComments = ArrayShuffle(this.state.topNComments)
 
@@ -80,15 +80,15 @@ class YTCommentsBasicResultCard extends Component {
       withCredentials: true
     }
     ).then(response => {
-      console.log(this.state.promptingChatGpt)
-      if (this.state.promptingChatGpt) {
+      console.log(this.state.promptingLlm)
+      if (this.state.promptingLlm) {
         this.setState({ llmGptReply: response.data.responsePayload.llmGptReply })
-        this.setState({ promptingChatGpt: !this.state.promptingChatGpt })
+        this.setState({ promptingLlm: !this.state.promptingLlm })
       }
     }
     ).catch(error => {
-      if (this.state.promptingChatGpt) {
-        this.setState({ promptingChatGpt: !this.state.promptingChatGpt })
+      if (this.state.promptingLlm) {
+        this.setState({ promptingLlm: !this.state.promptingLlm })
       }
     })
   }
@@ -99,7 +99,7 @@ class YTCommentsBasicResultCard extends Component {
     if (this.state.commentsSummaryExpand) {
       this.setState({ commentsSummaryExpand: !this.state.commentsSummaryExpand })
       this.setState({ llmGptReply: '' })
-      this.setState({ promptingChatGpt: false })
+      this.setState({ promptingLlm: false })
     }
   }
 
@@ -110,7 +110,7 @@ class YTCommentsBasicResultCard extends Component {
       this.setState({ emoElaborationCommentsSummaryExpand: !this.state.emoElaborationCommentsSummaryExpand })
     }
 
-    this.setState({ emoElaborationPromptingChatGpt: !this.state.emoElaborationPromptingChatGpt })
+    this.setState({ emoElaborationPromptingLlm: !this.state.emoElaborationPromptingLlm })
 
     const shuffledTopNComments = ArrayShuffle(this.state.topNComments)
 
@@ -122,15 +122,15 @@ class YTCommentsBasicResultCard extends Component {
       withCredentials: true
     }
     ).then(response => {
-      console.log(this.state.emoElaborationPromptingChatGpt)
-      if (this.state.emoElaborationPromptingChatGpt) {
+      console.log(this.state.emoElaborationPromptingLlm)
+      if (this.state.emoElaborationPromptingLlm) {
         this.setState({ emoElaborationllmGptReply: response.data.responsePayload.emoElaborationllmGptReply })
-        this.setState({ emoElaborationPromptingChatGpt: !this.state.emoElaborationPromptingChatGpt })
+        this.setState({ emoElaborationPromptingLlm: !this.state.emoElaborationPromptingLlm })
       }
     }
     ).catch(error => {
-      if (this.state.emoElaborationPromptingChatGpt) {
-        this.setState({ emoElaborationPromptingChatGpt: !this.state.emoElaborationPromptingChatGpt })
+      if (this.state.emoElaborationPromptingLlm) {
+        this.setState({ emoElaborationPromptingLlm: !this.state.emoElaborationpromptingL })
       }
     })
   }
@@ -141,7 +141,7 @@ class YTCommentsBasicResultCard extends Component {
     if (this.state.emoElaborationCommentsSummaryExpand) {
       this.setState({ emoElaborationCommentsSummaryExpand: !this.state.emoElaborationCommentsSummaryExpand })
       this.setState({ emoElaborationllmGptReply: '' })
-      this.setState({ emoElaborationPromptingChatGpt: false })
+      this.setState({ emoElaborationpromptingL: false })
     }
   }
 
@@ -171,7 +171,7 @@ class YTCommentsBasicResultCard extends Component {
                 </CardContent>
                 {!this.state.hideCard &&
                 <CardActions>
-                    {!this.state.promptingChatGpt &&
+                    {!this.state.promptingL &&
                       <Button size="small" onClick={this.handleSubmit} style={{ textAlign: 'left' }}>
                         WHAT MAKES MY AUDIENCE {this.state.emoIcon}?
                       </Button>
@@ -183,7 +183,7 @@ class YTCommentsBasicResultCard extends Component {
                 }
                 {!this.state.hideCard &&
                 <CardActions>
-                  {!this.state.promptingChatGpt && this.state.llmGptReply !== '' &&
+                  {!this.state.promptingL && this.state.llmGptReply !== '' &&
                     <Button>(Click me again for more insight)</Button>
                   }
                 </CardActions>
@@ -191,18 +191,18 @@ class YTCommentsBasicResultCard extends Component {
                 {!this.state.hideCard &&
                 <Collapse in={this.state.commentsSummaryExpand} timeout="auto" unmountOnExit>
                     <CardContent>
-                        {this.state.promptingChatGpt &&
+                        {this.state.promptingL &&
                             <CardActions>
                                 <Button size="small" style={{ textAlign: 'left' }}>AI Loading Answer...</Button>
                             </CardActions>
                         }
                         <Typography paragraph sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }}>
-                            {!this.state.promptingChatGpt && this.state.llmGptReply !== '' &&
+                            {!this.state.promptingL && this.state.llmGptReply !== '' &&
                                 <Typography sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }} color="text.secondary" gutterBottom>
                                     What made viewers {this.state.emoIcon}:
                                 </Typography>
                             }
-                            {!this.state.promptingChatGpt && this.state.llmGptReply !== '' &&
+                            {!this.state.promptingL && this.state.llmGptReply !== '' &&
                                 <View>
                                     {this.state.llmGptReply}
                                 </View>
@@ -213,12 +213,12 @@ class YTCommentsBasicResultCard extends Component {
                 }
                 {!this.state.hideCard &&
                 <CardActions>
-                    {this.state.emoIcon === '😃' && !this.state.emoElaborationPromptingChatGpt &&
+                    {this.state.emoIcon === '😃' && !this.state.emoElaborationpromptingL &&
                       <Button size="small" onClick={this.handleSubmitEmoElaboration} style={{ textAlign: 'left' }}>
                         HOW DO I MAKE CONTENT THAT MAKES MY AUDIENCE HAPPIER?
                       </Button>
                     }
-                    {this.state.emoIcon === '😡' && !this.state.emoElaborationPromptingChatGpt &&
+                    {this.state.emoIcon === '😡' && !this.state.emoElaborationpromptingL &&
                       <Button
                         size="small"
                         onClick={this.handleSubmitEmoElaboration}
@@ -227,27 +227,27 @@ class YTCommentsBasicResultCard extends Component {
                           HOW CAN I HARNESS MY AUDIENCE&apos;S ANGER TO MAKE MORE RELEVANT, USEFUL CONTENT?
                       </Button>
                     }
-                    {this.state.emoIcon === '🤢' && !this.state.emoElaborationPromptingChatGpt &&
+                    {this.state.emoIcon === '🤢' && !this.state.emoElaborationpromptingL &&
                       <Button size="small" onClick={this.handleSubmitEmoElaboration} style={{ textAlign: 'left' }}>
                         HOW CAN I FURTHER PROVOKE MY AUDIENCE&apos;S MORBID CURIOSITY?
                       </Button>
                     }
-                    {this.state.emoIcon === '😢' && !this.state.emoElaborationPromptingChatGpt &&
+                    {this.state.emoIcon === '😢' && !this.state.emoElaborationpromptingL &&
                       <Button size="small" onClick={this.handleSubmitEmoElaboration} style={{ textAlign: 'left' }}>
                         HOW DOES SADNESS INFORM WHAT MY AUDIENCE DEEPLY CARES ABOUT?
                       </Button>
                     }
-                    {this.state.emoIcon === '😱' && !this.state.emoElaborationPromptingChatGpt &&
+                    {this.state.emoIcon === '😱' && !this.state.emoElaborationpromptingL &&
                       <Button size="small" onClick={this.handleSubmitEmoElaboration} style={{ textAlign: 'left' }}>
                         HOW CAN I JUMPSCARE AND GRIP MY AUDIENCE?
                       </Button>
                     }
-                    {this.state.emoIcon === '😯' && !this.state.emoElaborationPromptingChatGpt &&
+                    {this.state.emoIcon === '😯' && !this.state.emoElaborationpromptingL &&
                       <Button size="small" onClick={this.handleSubmitEmoElaboration} style={{ textAlign: 'left' }}>
                         HOW CAN I FURTHER SURPRISE AND AMAZE MY AUDIENCE?
                       </Button>
                     }
-                    {this.state.emoIcon === '😐' && !this.state.emoElaborationPromptingChatGpt &&
+                    {this.state.emoIcon === '😐' && !this.state.emoElaborationpromptingL &&
                       <Button size="small" onClick={this.handleSubmitEmoElaboration} style={{ textAlign: 'left' }}>
                         HOW CAN I WIN OVER AUDIENCE WITH LUKEWARM REACTIONS?
                       </Button>
@@ -259,7 +259,7 @@ class YTCommentsBasicResultCard extends Component {
                 }
                 {!this.state.hideCard &&
                 <CardActions>
-                  {!this.state.emoElaborationPromptingChatGpt && this.state.emoElaborationllmGptReply !== '' &&
+                  {!this.state.emoElaborationpromptingL && this.state.emoElaborationllmGptReply !== '' &&
                     <Button>(Click me again)</Button>
                   }
                 </CardActions>
@@ -267,18 +267,18 @@ class YTCommentsBasicResultCard extends Component {
                 {!this.state.hideCard &&
                 <Collapse in={this.state.emoElaborationCommentsSummaryExpand} timeout="auto" unmountOnExit>
                     <CardContent>
-                        {this.state.emoElaborationPromptingChatGpt &&
+                        {this.state.emoElaborationpromptingL &&
                             <CardActions>
                                 <Button size="small">AI Loading Answer...</Button>
                             </CardActions>
                         }
                         <Typography paragraph sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }}>
-                            {!this.state.emoElaborationPromptingChatGpt && this.state.emoElaborationllmGptReply !== '' &&
+                            {!this.state.emoElaborationpromptingL && this.state.emoElaborationllmGptReply !== '' &&
                                 <Typography sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }} color="text.secondary" gutterBottom>
                                     New content suggestion {this.state.emoIcon}:
                                 </Typography>
                             }
-                            {!this.state.emoElaborationPromptingChatGpt && this.state.emoElaborationllmGptReply !== '' &&
+                            {!this.state.emoElaborationpromptingL && this.state.emoElaborationllmGptReply !== '' &&
                                 <View>
                                     {this.state.emoElaborationllmGptReply}
                                 </View>
