@@ -18,6 +18,7 @@ import Typography from '@mui/material/Typography'
 import DateFormatterToNaturalLanguage from '../utils/DateFormatterToNaturalLanguage'
 import CookieSessionChecker from '../utils/CookiesSessions/CookieSessionChecker'
 import WaitInSeconds from '../utils/timing_utils/WaitInSeconds'
+import { videoAdHocAnalysisSmartRetrievalLimit } from '../utils/smart_retrieval_configuration/SmartRetrievalConfiguration'
 
 const { vw, vh, vmin, vmax } = require('react-native-viewport-units')
 
@@ -79,7 +80,8 @@ class VideoAdHocAnalysisPage extends Component {
       hideSurprisedCard: false,
       hideNeutralCard: false,
       hideSadCard: false,
-      hideDisgustCard: false
+      hideDisgustCard: false,
+      numberOfSmartRetrievalAttempts: 0
     }
 
     // this.intervalRetrievalInnerFunction.bind(this)
@@ -415,6 +417,8 @@ class VideoAdHocAnalysisPage extends Component {
       const videoId = ExtractVideoId(self.state.youtubeVideoInput)
       self.setState({ notEnoughComments: false })
 
+      console.log('Smart retrieval attempt number: ' + self.state.numberOfSmartRetrievalAttempts)
+
       api.post(youtubeRetrieveVideoAdhocResults, {
         username: self.state.username,
         youtubeVideoInput: videoId
@@ -431,8 +435,24 @@ class VideoAdHocAnalysisPage extends Component {
           self.populateOverallEmoResultTable(response.data.responsePayload.average_emo_breakdown)
           self.populateCommentsResultTable(response.data.responsePayload)
 
+          console.log('Clearing smart retrieval interval')
+          self.props.deactivateVideoAdHocSmartRetrieval()
+          self.setState({ numberOfSmartRetrievalAttempts: 0 })
           clearInterval(self.state.intervalId)
         } else {
+          if (self.state.numberOfSmartRetrievalAttempts >= videoAdHocAnalysisSmartRetrievalLimit) {
+            console.log('Clearing smart retrieval interval')
+            self.setState({ noResultsToReturn: true })
+            self.setState({ commentsAcquisitionInitiated: false })
+            self.props.deactivateVideoAdHocSmartRetrieval()
+            self.setState({ numberOfSmartRetrievalAttempts: 0 })
+            clearInterval(self.state.intervalId)
+          } else {
+            const newNumberOfSmartRetrievalAttempts = self.state.numberOfSmartRetrievalAttempts + 1
+            console.log('Incrementing the number of smart retrieval attempts to ' + newNumberOfSmartRetrievalAttempts)
+            self.setState({ numberOfSmartRetrievalAttempts: self.state.numberOfSmartRetrievalAttempts + 1 })
+          }
+
           if (response.data.error_message === 'still_analysing') {
             console.log('Comments still being analysed')
           } else {
@@ -440,6 +460,8 @@ class VideoAdHocAnalysisPage extends Component {
             self.setState({ noResultsToReturn: true })
             self.setState({ commentsAcquisitionInitiated: false })
             self.props.deactivateVideoAdHocSmartRetrieval()
+            self.setState({ numberOfSmartRetrievalAttempts: 0 })
+            clearInterval(self.state.intervalId)
             self.forceUpdate()
           }
         }
