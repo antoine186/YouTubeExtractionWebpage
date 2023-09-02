@@ -50,7 +50,8 @@ class YTCommentsBasicResultCard extends Component {
       topNEmoBreakdown: this.props.topNEmoBreakdown,
       emoElaborationPromptingChatGpt: false,
       emoElaborationCommentsSummaryExpand: false,
-      emoElaborationllmGptReply: ''
+      emoElaborationllmGptReply: '',
+      hideCard: this.props.hideCard
     }
   }
 
@@ -152,6 +153,11 @@ class YTCommentsBasicResultCard extends Component {
                     <Typography sx={{ fontSize: 1.5 * this.state.sizeScaler * vh }} color="text.primary" gutterBottom>
                         Most {this.state.emoIcon} opinions
                     </Typography>
+                    {this.state.hideCard &&
+                      <Typography sx={{ fontSize: 1.5 * this.state.sizeScaler * vh }} color="text.primary" gutterBottom>
+                        {'('}Unavailable: not enough comments{')'}
+                      </Typography>
+                    }
                     <Typography variant="h5" sx={{ fontSize: 1.6 * this.state.sizeScaler * vh }}>
                         {this.state.commentsData !== undefined &&
                             <a href={this.state.commentsData.url} style={{ color: '#808B96' }}>{this.state.commentsData.title}</a>
@@ -163,6 +169,7 @@ class YTCommentsBasicResultCard extends Component {
                         }
                     </Typography>
                 </CardContent>
+                {!this.state.hideCard &&
                 <CardActions>
                     {!this.state.promptingChatGpt &&
                       <Button size="small" onClick={this.handleSubmit} style={{ textAlign: 'left' }}>
@@ -173,11 +180,15 @@ class YTCommentsBasicResultCard extends Component {
                         <Button size="small" onClick={this.handleClose} style={{ textAlign: 'left' }}>CLOSE</Button>
                     }
                 </CardActions>
+                }
+                {!this.state.hideCard &&
                 <CardActions>
                   {!this.state.promptingChatGpt && this.state.llmGptReply !== '' &&
                     <Button>(Click me again for more insight)</Button>
                   }
                 </CardActions>
+                }
+                {!this.state.hideCard &&
                 <Collapse in={this.state.commentsSummaryExpand} timeout="auto" unmountOnExit>
                     <CardContent>
                         {this.state.promptingChatGpt &&
@@ -199,6 +210,8 @@ class YTCommentsBasicResultCard extends Component {
                         </Typography>
                     </CardContent>
                 </Collapse>
+                }
+                {!this.state.hideCard &&
                 <CardActions>
                     {this.state.emoIcon === '😃' && !this.state.emoElaborationPromptingChatGpt &&
                       <Button size="small" onClick={this.handleSubmitEmoElaboration} style={{ textAlign: 'left' }}>
@@ -243,11 +256,15 @@ class YTCommentsBasicResultCard extends Component {
                         <Button size="small" onClick={this.handleCloseEmoElaboration} style={{ textAlign: 'left' }}>CLOSE</Button>
                     }
                 </CardActions>
+                }
+                {!this.state.hideCard &&
                 <CardActions>
                   {!this.state.emoElaborationPromptingChatGpt && this.state.emoElaborationllmGptReply !== '' &&
                     <Button>(Click me again)</Button>
                   }
                 </CardActions>
+                }
+                {!this.state.hideCard &&
                 <Collapse in={this.state.emoElaborationCommentsSummaryExpand} timeout="auto" unmountOnExit>
                     <CardContent>
                         {this.state.emoElaborationPromptingChatGpt &&
@@ -269,6 +286,7 @@ class YTCommentsBasicResultCard extends Component {
                         </Typography>
                     </CardContent>
                 </Collapse>
+                }
                 {/*
                 <CardActions>
                     <Button size="small" onClick={() => this.setState({ commentsExpand: !this.state.commentsExpand })}>COMMENT SNIPPETS</Button>

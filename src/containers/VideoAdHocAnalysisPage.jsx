@@ -72,7 +72,14 @@ class VideoAdHocAnalysisPage extends Component {
       publisher: '',
       video_title: '',
       published_date: '',
-      notEnoughComments: false
+      notEnoughComments: false,
+      hideHappyCard: false,
+      hideAngryCard: false,
+      hideFearCard: false,
+      hideSurprisedCard: false,
+      hideNeutralCard: false,
+      hideSadCard: false,
+      hideDisgustCard: false
     }
 
     // this.intervalRetrievalInnerFunction.bind(this)
@@ -233,6 +240,55 @@ class VideoAdHocAnalysisPage extends Component {
 
   populateOverallEmoResultTable (data) {
     const channelOverallEmoResultTableData = []
+
+    if (data.anger_percentage * 100 < 10) {
+      console.log('Hide anger card')
+      this.setState({ hideAngryCard: true })
+    } else {
+      this.setState({ hideAngryCard: false })
+    }
+
+    if (data.disgust_percentage * 100 < 10) {
+      console.log('Hide disgust card')
+      this.setState({ hideDisgustCard: true })
+    } else {
+      this.setState({ hideDisgustCard: false })
+    }
+
+    if (data.fear_percentage * 100 < 10) {
+      console.log('Hide fearful card')
+      this.setState({ hideFearCard: true })
+    } else {
+      this.setState({ hideFearCard: false })
+    }
+
+    if (data.joy_percentage * 100 < 10) {
+      console.log('Hide happy card')
+      this.setState({ hideHappyCard: true })
+    } else {
+      this.setState({ hideHappyCard: false })
+    }
+
+    if (data.neutral_percentage * 100 < 10) {
+      console.log('Hide neutral card')
+      this.setState({ hideNeutralCard: true })
+    } else {
+      this.setState({ hideNeutralCard: false })
+    }
+
+    if (data.sadness_percentage * 100 < 10) {
+      console.log('Hide sadness card')
+      this.setState({ hideSadCard: true })
+    } else {
+      this.setState({ hideSadCard: false })
+    }
+
+    if (data.surprise_percentage * 100 < 10) {
+      console.log('Hide surprise card')
+      this.setState({ hideSurprisedCard: true })
+    } else {
+      this.setState({ hideSurprisedCard: false })
+    }
 
     const overallEmoResultDict = {
       overall_emo: 'Overall Emotional Engagement with Search Topic Over All Articles Found!',
@@ -535,42 +591,49 @@ class VideoAdHocAnalysisPage extends Component {
                 commentsData={this.state.channelYTCommentsResultTableData[0]}
                 topNComments={this.state.topNJoy}
                 topNEmoBreakdown={this.state.top_n_joy_average_emo_breakdown}
+                hideCard={this.state.hideHappyCard}
               />
               <YTCommentsBasicResultCard
                 emoIcon={'😡'}
                 commentsData={this.state.channelYTCommentsResultTableData[1]}
                 topNComments={this.state.topNAnger}
                 topNEmoBreakdown={this.state.top_n_anger_average_emo_breakdown}
+                hideCard={this.state.hideAngryCard}
               />
               <YTCommentsBasicResultCard
                 emoIcon={'🤢'}
                 commentsData={this.state.channelYTCommentsResultTableData[2]}
                 topNComments={this.state.topNDisgust}
                 topNEmoBreakdown={this.state.top_n_disgust_average_emo_breakdown}
+                hideCard={this.state.hideDisgustCard}
               />
               <YTCommentsBasicResultCard
                 emoIcon={'😱'}
                 commentsData={this.state.channelYTCommentsResultTableData[3]}
                 topNComments={this.state.topNFear}
                 topNEmoBreakdown={this.state.top_n_fear_average_emo_breakdown}
+                hideCard={this.state.hideFearCard}
               />
               <YTCommentsBasicResultCard
                 emoIcon={'😐'}
                 commentsData={this.state.channelYTCommentsResultTableData[4]}
                 topNComments={this.state.topNNeutral}
                 topNEmoBreakdown={this.state.top_n_neutral_average_emo_breakdown}
+                hideCard={this.state.hideNeutralCard}
               />
               <YTCommentsBasicResultCard
                 emoIcon={'😢'}
                 commentsData={this.state.channelYTCommentsResultTableData[5]}
                 topNComments={this.state.topNSadness}
                 topNEmoBreakdown={this.state.top_n_sadness_average_emo_breakdown}
+                hideCard={this.state.hideSadCard}
               />
               <YTCommentsBasicResultCard
                 emoIcon={'😯'}
                 commentsData={this.state.channelYTCommentsResultTableData[6]}
                 topNComments={this.state.topNSurprise}
                 topNEmoBreakdown={this.state.top_n_surprise_average_emo_breakdown}
+                hideCard={this.state.hideSurprisedCard}
               />
             </View>
           </View>
