@@ -21,6 +21,8 @@ import WaitInSeconds from '../utils/timing_utils/WaitInSeconds'
 import { videoAdHocAnalysisSmartRetrievalLimit } from '../utils/smart_retrieval_configuration/SmartRetrievalConfiguration'
 import { llmModel } from '../utils/llm_configuration/LlmConfiguration'
 import YTCommentsDescriptionCard from '../components/molecules/YTCommentsDescriptionCard'
+import CheckIfServerUpInsideSession from '../components/atoms/CheckIfServerUpInsideSession'
+import ManualStoreClearing from '../utils/session_helpers/ManualStoreClearing'
 
 const { vw, vh, vmin, vmax } = require('react-native-viewport-units')
 
@@ -85,7 +87,7 @@ class VideoAdHocAnalysisPage extends Component {
       hideDisgustCard: false,
       numberOfSmartRetrievalAttempts: 0,
       videoDescription: '',
-      serverUnavailableStatusGrabber: this.props.serverUnavailableStatusGrabber
+      serverUnavailable: false
     }
 
     // this.intervalRetrievalInnerFunction.bind(this)
@@ -125,10 +127,10 @@ class VideoAdHocAnalysisPage extends Component {
     ).catch(error => {
       switch (error.response.status) {
         case 503:
-          this.state.serverUnavailableStatusGrabber(true)
+          this.setState({ serverUnavailable: true })
           break
         case 502:
-          this.state.serverUnavailableStatusGrabber(true)
+          this.setState({ serverUnavailable: true })
           break
         default:
           break
@@ -230,10 +232,10 @@ class VideoAdHocAnalysisPage extends Component {
 
       switch (error.response.status) {
         case 503:
-          this.state.serverUnavailableStatusGrabber(true)
+          this.setState({ serverUnavailable: true })
           break
         case 502:
-          this.state.serverUnavailableStatusGrabber(true)
+          this.setState({ serverUnavailable: true })
           break
         default:
           break
@@ -471,13 +473,13 @@ class VideoAdHocAnalysisPage extends Component {
       ).catch(error => {
         switch (error.response.status) {
           case 503:
-            this.state.serverUnavailableStatusGrabber(true)
+            this.setState({ serverUnavailable: true })
             self.props.deactivateVideoAdHocSmartRetrieval()
             self.setState({ numberOfSmartRetrievalAttempts: 0 })
             clearInterval(self.state.intervalId)
             break
           case 502:
-            this.state.serverUnavailableStatusGrabber(true)
+            this.setState({ serverUnavailable: true })
             self.props.deactivateVideoAdHocSmartRetrieval()
             self.setState({ numberOfSmartRetrievalAttempts: 0 })
             clearInterval(self.state.intervalId)
@@ -524,10 +526,10 @@ class VideoAdHocAnalysisPage extends Component {
     ).catch(error => {
       switch (error.response.status) {
         case 503:
-          this.state.serverUnavailableStatusGrabber(true)
+          this.setState({ serverUnavailable: true })
           break
         case 502:
-          this.state.serverUnavailableStatusGrabber(true)
+          this.setState({ serverUnavailable: true })
           break
         default:
           break
@@ -535,171 +537,185 @@ class VideoAdHocAnalysisPage extends Component {
     })
   }
 
+  setServerUnavailable (setServerUnavailable) {
+    this.setState({ setServerUnavailable })
+  }
+
   render () {
-    return (
-      <View style={styles.subcontainer}>
-          <CookieSessionChecker />
-          <Text style={styles.text}>For support, please email antoine.tian@emomachines.xyz</Text>
-
-        <View style={styles.innerContainer}>
-          <View class="form-group form-row">
-            <View class="col-10">
-              <br></br>
-              <br></br>
-              <TextInput
-                editable
-                multiline
-                numberOfLines={6}
-                maxLength={200}
-                value={this.state.youtubeVideoInput}
-                onChangeText={text => this.setState({ youtubeVideoInput: text })}
-                placeholder={'Try inputting a youtube video url... (result might take a few minutes)'}
-                style={{ padding: 10, borderWidth: 2, borderColor: '#BC2BEA' }}
-              />
+    if (this.state.serverUnavailable) {
+      return (
+        <ManualStoreClearing />
+      )
+    } else {
+      return (
+        <View style={styles.subcontainer}>
+            <CheckIfServerUpInsideSession
+              setServerUnavailable={this.setServerUnavailable.bind(this)}
+              serverUnavailable={this.state.serverUnavailable}
+            />
+            <CookieSessionChecker />
+            <Text style={styles.text}>For support, please email antoine.tian@emomachines.xyz</Text>
+  
+          <View style={styles.innerContainer}>
+            <View class="form-group form-row">
+              <View class="col-10">
+                <br></br>
+                <br></br>
+                <TextInput
+                  editable
+                  multiline
+                  numberOfLines={6}
+                  maxLength={200}
+                  value={this.state.youtubeVideoInput}
+                  onChangeText={text => this.setState({ youtubeVideoInput: text })}
+                  placeholder={'Try inputting a youtube video url... (result might take a few minutes)'}
+                  style={{ padding: 10, borderWidth: 2, borderColor: '#BC2BEA' }}
+                />
+              </View>
             </View>
+            <br></br>
+            {!this.state.commentAcquisitionInitiated &&
+              <TouchableOpacity style={styles.analyseBtn} onPress={this.handleCommentAcquisitionSubmit}>
+                <Text style={styles.text}>ANALYSE</Text>
+              </TouchableOpacity>
+            }
+            {this.state.noResultsToReturn &&
+              <View>
+                <br></br>
+                <Text style={styles.errorText}>
+                  Could not retrieve video comments. Maybe your URL is incorrect!
+                </Text>
+                <br></br>
+              </View>
+            }
+            {this.state.notEnoughComments &&
+              <View>
+                <br></br>
+                <Text style={styles.errorText}>
+                  The video has fewer than 50 comments, we are unable to perform good enough analysis...
+                </Text>
+                <br></br>
+              </View>
+            }
+            {this.state.commentsAcquisitionInitiated &&
+            <View>
+              <br></br>
+              <br></br>
+              <View style={{ alignItems: 'center' }}>
+                <ClipLoader
+                  color={'#e75fa6'}
+                  size={200}
+                  aria-label="Loading Spinner"
+                  data-testid="loader"
+                />
+              </View>
+            </View>
+            }
+  
+            <br></br>
+            <br></br>
+  
+            {!this.state.commentsAcquisitionInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults && !this.state.notEnoughComments &&
+              <View>
+                <Typography sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }} color="text.secondary">
+                  {this.state.video_title}
+                </Typography>
+                <Typography sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }} color="text.secondary">
+                  {this.state.publisher}
+                </Typography>
+                <Typography sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }} color="text.secondary">
+                  {this.state.published_date}
+                </Typography>
+              </View>
+            }
+            {!this.state.commentsAcquisitionInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults && !this.state.notEnoughComments &&
+              <View>
+                <br></br>
+                {this.state.videoEmbeddedUrl === '' &&
+                  this.simpleAdHocRetrieve()
+                }
+                <iframe
+                    width="560"
+                    height="315"
+                    src={this.state.videoEmbeddedUrl}
+                    title="YouTube video player"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen></iframe>
+              </View>
+            }
+  
+            <br></br>
+            <br></br>
+  
+            {!this.state.commentsAcquisitionInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults && !this.state.notEnoughComments &&
+            <View>
+              <br></br>
+              <View style={styles.innerContainer}>
+                <YTCommentsDescriptionCard descriptionData={this.state.videoDescription} />
+              </View>
+              <br></br>
+              <View style={styles.innerContainer}>
+                <YTCommentsOverallResultCard resultData={this.state.channelOverallEmoResultTableData} />
+              </View>
+              <br></br>
+              <View style={styles.innerContainer}>
+                <YTCommentsBasicResultCard
+                  emoIcon={'😃'}
+                  commentsData={this.state.channelYTCommentsResultTableData[0]}
+                  topNComments={this.state.topNJoy}
+                  topNEmoBreakdown={this.state.top_n_joy_average_emo_breakdown}
+                  hideCard={this.state.hideHappyCard}
+                />
+                <YTCommentsBasicResultCard
+                  emoIcon={'😡'}
+                  commentsData={this.state.channelYTCommentsResultTableData[1]}
+                  topNComments={this.state.topNAnger}
+                  topNEmoBreakdown={this.state.top_n_anger_average_emo_breakdown}
+                  hideCard={this.state.hideAngryCard}
+                />
+                <YTCommentsBasicResultCard
+                  emoIcon={'🤢'}
+                  commentsData={this.state.channelYTCommentsResultTableData[2]}
+                  topNComments={this.state.topNDisgust}
+                  topNEmoBreakdown={this.state.top_n_disgust_average_emo_breakdown}
+                  hideCard={this.state.hideDisgustCard}
+                />
+                <YTCommentsBasicResultCard
+                  emoIcon={'😱'}
+                  commentsData={this.state.channelYTCommentsResultTableData[3]}
+                  topNComments={this.state.topNFear}
+                  topNEmoBreakdown={this.state.top_n_fear_average_emo_breakdown}
+                  hideCard={this.state.hideFearCard}
+                />
+                <YTCommentsBasicResultCard
+                  emoIcon={'😐'}
+                  commentsData={this.state.channelYTCommentsResultTableData[4]}
+                  topNComments={this.state.topNNeutral}
+                  topNEmoBreakdown={this.state.top_n_neutral_average_emo_breakdown}
+                  hideCard={this.state.hideNeutralCard}
+                />
+                <YTCommentsBasicResultCard
+                  emoIcon={'😢'}
+                  commentsData={this.state.channelYTCommentsResultTableData[5]}
+                  topNComments={this.state.topNSadness}
+                  topNEmoBreakdown={this.state.top_n_sadness_average_emo_breakdown}
+                  hideCard={this.state.hideSadCard}
+                />
+                <YTCommentsBasicResultCard
+                  emoIcon={'😯'}
+                  commentsData={this.state.channelYTCommentsResultTableData[6]}
+                  topNComments={this.state.topNSurprise}
+                  topNEmoBreakdown={this.state.top_n_surprise_average_emo_breakdown}
+                  hideCard={this.state.hideSurprisedCard}
+                />
+              </View>
+            </View>
+            }
           </View>
-          <br></br>
-          {!this.state.commentAcquisitionInitiated &&
-            <TouchableOpacity style={styles.analyseBtn} onPress={this.handleCommentAcquisitionSubmit}>
-              <Text style={styles.text}>ANALYSE</Text>
-            </TouchableOpacity>
-          }
-          {this.state.noResultsToReturn &&
-            <View>
-              <br></br>
-              <Text style={styles.errorText}>
-                Could not retrieve video comments. Maybe your URL is incorrect!
-              </Text>
-              <br></br>
-            </View>
-          }
-          {this.state.notEnoughComments &&
-            <View>
-              <br></br>
-              <Text style={styles.errorText}>
-                The video has fewer than 50 comments, we are unable to perform good enough analysis...
-              </Text>
-              <br></br>
-            </View>
-          }
-          {this.state.commentsAcquisitionInitiated &&
-          <View>
-            <br></br>
-            <br></br>
-            <View style={{ alignItems: 'center' }}>
-              <ClipLoader
-                color={'#e75fa6'}
-                size={200}
-                aria-label="Loading Spinner"
-                data-testid="loader"
-              />
-            </View>
-          </View>
-          }
-
-          <br></br>
-          <br></br>
-
-          {!this.state.commentsAcquisitionInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults && !this.state.notEnoughComments &&
-            <View>
-              <Typography sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }} color="text.secondary">
-                {this.state.video_title}
-              </Typography>
-              <Typography sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }} color="text.secondary">
-                {this.state.publisher}
-              </Typography>
-              <Typography sx={{ fontSize: 1.2 * this.state.sizeScaler * vh }} color="text.secondary">
-                {this.state.published_date}
-              </Typography>
-            </View>
-          }
-          {!this.state.commentsAcquisitionInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults && !this.state.notEnoughComments &&
-            <View>
-              <br></br>
-              {this.state.videoEmbeddedUrl === '' &&
-                this.simpleAdHocRetrieve()
-              }
-              <iframe
-                  width="560"
-                  height="315"
-                  src={this.state.videoEmbeddedUrl}
-                  title="YouTube video player"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen></iframe>
-            </View>
-          }
-
-          <br></br>
-          <br></br>
-
-          {!this.state.commentsAcquisitionInitiated && !this.state.noResultsToReturn && !this.state.noPreviousResults && !this.state.notEnoughComments &&
-          <View>
-            <br></br>
-            <View style={styles.innerContainer}>
-              <YTCommentsDescriptionCard descriptionData={this.state.videoDescription} />
-            </View>
-            <br></br>
-            <View style={styles.innerContainer}>
-              <YTCommentsOverallResultCard resultData={this.state.channelOverallEmoResultTableData} />
-            </View>
-            <br></br>
-            <View style={styles.innerContainer}>
-              <YTCommentsBasicResultCard
-                emoIcon={'😃'}
-                commentsData={this.state.channelYTCommentsResultTableData[0]}
-                topNComments={this.state.topNJoy}
-                topNEmoBreakdown={this.state.top_n_joy_average_emo_breakdown}
-                hideCard={this.state.hideHappyCard}
-              />
-              <YTCommentsBasicResultCard
-                emoIcon={'😡'}
-                commentsData={this.state.channelYTCommentsResultTableData[1]}
-                topNComments={this.state.topNAnger}
-                topNEmoBreakdown={this.state.top_n_anger_average_emo_breakdown}
-                hideCard={this.state.hideAngryCard}
-              />
-              <YTCommentsBasicResultCard
-                emoIcon={'🤢'}
-                commentsData={this.state.channelYTCommentsResultTableData[2]}
-                topNComments={this.state.topNDisgust}
-                topNEmoBreakdown={this.state.top_n_disgust_average_emo_breakdown}
-                hideCard={this.state.hideDisgustCard}
-              />
-              <YTCommentsBasicResultCard
-                emoIcon={'😱'}
-                commentsData={this.state.channelYTCommentsResultTableData[3]}
-                topNComments={this.state.topNFear}
-                topNEmoBreakdown={this.state.top_n_fear_average_emo_breakdown}
-                hideCard={this.state.hideFearCard}
-              />
-              <YTCommentsBasicResultCard
-                emoIcon={'😐'}
-                commentsData={this.state.channelYTCommentsResultTableData[4]}
-                topNComments={this.state.topNNeutral}
-                topNEmoBreakdown={this.state.top_n_neutral_average_emo_breakdown}
-                hideCard={this.state.hideNeutralCard}
-              />
-              <YTCommentsBasicResultCard
-                emoIcon={'😢'}
-                commentsData={this.state.channelYTCommentsResultTableData[5]}
-                topNComments={this.state.topNSadness}
-                topNEmoBreakdown={this.state.top_n_sadness_average_emo_breakdown}
-                hideCard={this.state.hideSadCard}
-              />
-              <YTCommentsBasicResultCard
-                emoIcon={'😯'}
-                commentsData={this.state.channelYTCommentsResultTableData[6]}
-                topNComments={this.state.topNSurprise}
-                topNEmoBreakdown={this.state.top_n_surprise_average_emo_breakdown}
-                hideCard={this.state.hideSurprisedCard}
-              />
-            </View>
-          </View>
-          }
         </View>
-      </View>
-    )
+      )
+    }
   }
 }
 
