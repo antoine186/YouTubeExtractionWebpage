@@ -18,6 +18,7 @@ import SearchTimeoutReducer from './Slices/SearchTimeoutSlice'
 import ProgressionTimeoutReducer from './Slices/ProgressionTimeoutSlice'
 import videoAdHocSmartRetrievalReducer from './Slices/VideoAdHocSmartRetrievalSlice'
 import SessionLogoutReducer from './Slices/SessionLogoutSlice'
+import AttemptingRecoveryFromServerDownReducer from './Slices/AttemptingRecoveryFromServerDownSlice'
 
 const rootReducer = combineReducers({
   userSession: userSessionReducer,
@@ -34,7 +35,8 @@ const rootReducer = combineReducers({
   searchTimeoutState: SearchTimeoutReducer,
   progressionTimeoutState: ProgressionTimeoutReducer,
   videoAdHocSmartRetrieval: videoAdHocSmartRetrievalReducer,
-  sessionLogoutState: SessionLogoutReducer
+  sessionLogoutState: SessionLogoutReducer,
+  attemptingRecoveryFromServerDown: AttemptingRecoveryFromServerDownReducer
 })
 
 export const persistConfig = {
@@ -55,7 +57,8 @@ export const persistConfig = {
     'searchTimeoutState',
     'progressionTimeoutState',
     'videoAdHocSmartRetrieval',
-    'sessionLogoutState'
+    'sessionLogoutState',
+    'attemptingRecoveryFromServerDown'
   ]
 }
 

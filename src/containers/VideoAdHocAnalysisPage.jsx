@@ -84,7 +84,8 @@ class VideoAdHocAnalysisPage extends Component {
       hideSadCard: false,
       hideDisgustCard: false,
       numberOfSmartRetrievalAttempts: 0,
-      videoDescription: ''
+      videoDescription: '',
+      serverUnavailableStatusGrabber: this.props.serverUnavailableStatusGrabber
     }
 
     // this.intervalRetrievalInnerFunction.bind(this)
@@ -121,7 +122,18 @@ class VideoAdHocAnalysisPage extends Component {
         }
       }
     }
-    )
+    ).catch(error => {
+      switch (error.response.status) {
+        case 503:
+          this.state.serverUnavailableStatusGrabber(true)
+          break
+        case 502:
+          this.state.serverUnavailableStatusGrabber(true)
+          break
+        default:
+          break
+      }
+    })
   }
 
   scrollToLoading () {
@@ -212,38 +224,20 @@ class VideoAdHocAnalysisPage extends Component {
       // Also add 'ERR_EMPTY_RESPONSE'
       if (error.code === 'ERR_BAD_RESPONSE') {
         console.log('Did not get a response yet, setting up smart retrieval')
-        // if (this.props.videoAdHocSmartRetrieval.validated) {
         this.props.activateVideoAdHocSmartRetrieval()
         this.retrievePreviousResults()
-        // }
       }
-      /*
-      console.log('Triggered timeout recovery')
-      api.post(youtubeRetrieveChannelResults, {
-        username: this.props.accountData.accountData.payload.emailAddress
-      }, {
-        withCredentials: true
+
+      switch (error.response.status) {
+        case 503:
+          this.state.serverUnavailableStatusGrabber(true)
+          break
+        case 502:
+          this.state.serverUnavailableStatusGrabber(true)
+          break
+        default:
+          break
       }
-      ).then(response => {
-        if (response.data.operation_success) {
-          console.log('Previous channel analysis returned something!')
-          this.setState({ youtubeVideoInput: response.data.responsePayload.previous_search_result.search_input })
-          this.setState({ noPreviousResults: false })
-          this.populateOverallEmoResultTable(response.data.responsePayload.previous_search_result)
-          this.populateCommentsResultTable(response.data.responsePayload.previous_search_result)
-        } else {
-          console.log('Search failed for an internal reason')
-          this.setState({ noResultsToReturn: true })
-          this.setState({ channelInitiated: false })
-          this.setState({ noPreviousResults: true })
-        }
-      }
-      ).catch(error => {
-        console.log('No previous search results')
-        this.setState({ noResultsToReturn: true })
-        this.setState({ channelInitiated: false })
-        this.setState({ noPreviousResults: true })
-      }) */
     })
   }
 
@@ -474,7 +468,24 @@ class VideoAdHocAnalysisPage extends Component {
           }
         }
       }
-      )
+      ).catch(error => {
+        switch (error.response.status) {
+          case 503:
+            this.state.serverUnavailableStatusGrabber(true)
+            self.props.deactivateVideoAdHocSmartRetrieval()
+            self.setState({ numberOfSmartRetrievalAttempts: 0 })
+            clearInterval(self.state.intervalId)
+            break
+          case 502:
+            this.state.serverUnavailableStatusGrabber(true)
+            self.props.deactivateVideoAdHocSmartRetrieval()
+            self.setState({ numberOfSmartRetrievalAttempts: 0 })
+            clearInterval(self.state.intervalId)
+            break
+          default:
+            break
+        }
+      })
     }
 
     const self = this
@@ -510,7 +521,18 @@ class VideoAdHocAnalysisPage extends Component {
         this.forceUpdate()
       }
     }
-    )
+    ).catch(error => {
+      switch (error.response.status) {
+        case 503:
+          this.state.serverUnavailableStatusGrabber(true)
+          break
+        case 502:
+          this.state.serverUnavailableStatusGrabber(true)
+          break
+        default:
+          break
+      }
+    })
   }
 
   render () {

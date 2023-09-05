@@ -6,8 +6,8 @@ import TopBar from '../components/molecules/TopBar'
 import { api, passwordReset } from '../utils/backend_configuration/BackendConfig'
 import validator from 'validator'
 import { useSelector } from 'react-redux'
-
 import { useNavigate, Navigate } from 'react-router-dom'
+import ServerNotAvailable from './ServerNotAvailable'
 
 function PasswordResetPage () {
   const [password, setPassword] = useState('')
@@ -15,6 +15,8 @@ function PasswordResetPage () {
   const [resetToken, setResetToken] = useState('')
   const [tokenIncorrect, setTokenIncorrect] = useState(false)
   const [emptyToken, setEmptyToken] = useState(false)
+  const [serverUnavailable, setServerUnavailable] = useState(false)
+  const [recreatingToken, setRecreatingToken] = useState(false)
 
   const [submitAllowed, setSubmitAllowed] = useState(false)
 
@@ -60,80 +62,109 @@ function PasswordResetPage () {
           console.log('Password changed')
 
           navigate('/')
+        } else if (response.data.error_message === 'reset_token_was_cleared_for_user') {
+          setRecreatingToken(true)
         } else {
           console.log('Reset token incorrect')
 
           setTokenIncorrect(true)
         }
       }
-      )
+      ).catch(error => {
+        switch (error.response.status) {
+          case 503:
+            setServerUnavailable(true)
+            break
+          case 502:
+            setServerUnavailable(true)
+            break
+          default:
+            break
+        }
+      })
     }
   }
 
-  return (
-    <View style={styles.container}>
-        <TopBar settingsEnabled={false} />
-        <View style={styles.container}>
-            <Text style={styles.titleText}>
-                Reset Your Password
-            </Text>
-            <Text style={styles.titleText2}>
-                Please enter your new password and reset token. Check your spam mail.
-            </Text>
-            <br></br>
-            <br></br>
-            <View style={styles.inputView}>
-                <TextInput
-                    style={styles.textInput}
-                    placeholder="Password"
-                    placeholderTextColor="#003f5c"
-                    secureTextEntry={true}
-                    onChangeText={(password) => setPassword(password)}
-                    maxLength={userInputFieldMaxCharacter}
-                />
-            </View>
-            {passwordWeak &&
-            <View>
-                <Text style={styles.errorText}>
-                    Passwords should be at least 8 characters long and have at least 1 uppercase, 1 lowercase character, and finally 1 number *
-                </Text>
-                <br></br>
-            </View>
-            }
-            <br></br>
-            <View style={styles.inputView}>
-                <TextInput
-                    style={styles.textInput}
-                    placeholder="Reset Token"
-                    placeholderTextColor="#003f5c"
-                    secureTextEntry={true}
-                    onChangeText={(token) => setResetToken(token)}
-                    maxLength={userInputFieldMaxCharacter}
-                />
-            </View>
-            {tokenIncorrect &&
-            <View>
-                <Text style={styles.errorText}>
-                    Token incorrect. Please check your email again.
-                </Text>
-                <br></br>
-            </View>
-            }
-            {emptyToken &&
-            <View>
-                <Text style={styles.errorText}>
-                    Token cannot be empty
-                </Text>
-                <br></br>
-            </View>
-            }
-            <br></br>
-            <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit}>
-                <Text style={styles.loginText}>Reset</Text>
-            </TouchableOpacity>
-        </View>
-    </View>
-  )
+  if (serverUnavailable) {
+    return (
+      <View style={styles.container}>
+        <ServerNotAvailable />
+      </View>
+    )
+  } else {
+    return (
+      <View style={styles.container}>
+          <TopBar settingsEnabled={false} />
+          <View style={styles.container}>
+              <Text style={styles.titleText}>
+                  Reset Your Password
+              </Text>
+              <Text style={styles.titleText2}>
+                  Please enter your new password and reset token. Check your spam mail.
+              </Text>
+              <br></br>
+              <br></br>
+              <View style={styles.inputView}>
+                  <TextInput
+                      style={styles.textInput}
+                      placeholder="Password"
+                      placeholderTextColor="#003f5c"
+                      secureTextEntry={true}
+                      onChangeText={(password) => setPassword(password)}
+                      maxLength={userInputFieldMaxCharacter}
+                  />
+              </View>
+              {passwordWeak &&
+              <View>
+                  <Text style={styles.errorText}>
+                      Passwords should be at least 8 characters long and have at least 1 uppercase, 1 lowercase character, and finally 1 number *
+                  </Text>
+                  <br></br>
+              </View>
+              }
+              <br></br>
+              <View style={styles.inputView}>
+                  <TextInput
+                      style={styles.textInput}
+                      placeholder="Reset Token"
+                      placeholderTextColor="#003f5c"
+                      secureTextEntry={true}
+                      onChangeText={(token) => setResetToken(token)}
+                      maxLength={userInputFieldMaxCharacter}
+                  />
+              </View>
+              {tokenIncorrect &&
+              <View>
+                  <Text style={styles.errorText}>
+                      Token incorrect. Please check your email again.
+                  </Text>
+                  <br></br>
+              </View>
+              }
+              {emptyToken &&
+              <View>
+                  <Text style={styles.errorText}>
+                      Token cannot be empty
+                  </Text>
+                  <br></br>
+              </View>
+              }
+              {recreatingToken &&
+              <View>
+                  <Text style={styles.errorText}>
+                      This token was voided and another one was sent to your email
+                  </Text>
+                  <br></br>
+              </View>
+              }
+              <br></br>
+              <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit}>
+                  <Text style={styles.loginText}>Reset</Text>
+              </TouchableOpacity>
+          </View>
+      </View>
+    )
+  }
 }
 
 export default PasswordResetPage

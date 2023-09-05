@@ -15,6 +15,7 @@ import { Navigate } from 'react-router-dom'
 import TopBar from '../components/molecules/TopBar'
 import StripeCustomerCreate from '../utils/account_creation_helpers/StripeCustomerCreate'
 import { setStripeCustomerId } from '../store/Slices/StripeCustomerIdSlice'
+import ServerNotAvailable from './ServerNotAvailable'
 
 class AccountCreationPage extends React.Component {
   constructor (props) {
@@ -36,7 +37,8 @@ class AccountCreationPage extends React.Component {
       passwordsMatch: true,
       passwordFormatIncorrect: false,
       goToPayment: false,
-      errorCreateStripeCustomer: false
+      errorCreateStripeCustomer: false,
+      serverUnavailable: false
     }
 
     this.handleSubmit = this.handleSubmit.bind(this)
@@ -152,53 +154,72 @@ class AccountCreationPage extends React.Component {
           }
         }
       }
-      )
+      ).catch(error => {
+        switch (error.response.status) {
+          case 503:
+            this.setState({ serverUnavailable: true })
+            break
+          case 502:
+            this.setState({ serverUnavailable: true })
+            break
+          default:
+            break
+        }
+      })
     }
   }
 
   render () {
-    if (!this.state.goToPayment) {
+    if (this.state.serverUnavailable) {
       return (
-      <View style={styles.container}>
-      <TopBar settingsEnabled={false} />
         <View style={styles.container}>
-          <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
-          <AccountBasicInfoInputView
-            firstNameGrabber={this.firstNameGrabber.bind(this)}
-            lastNameGrabber={this.lastNameGrabber.bind(this)}
-            userEmailGrabber={this.userEmailGrabber.bind(this)}
-            passwordGrabber={this.passwordGrabber.bind(this)}
-            confirmedPasswordGrabber={this.confirmedPasswordGrabber.bind(this)}
-            firstNameEmpty={this.state.firstNameEmpty}
-            lastNameEmpty={this.state.lastNameEmpty}
-            emailEmpty={this.state.emailEmpty}
-            emailAlreadyExists={this.state.emailAlreadyExists}
-            somethingWentWrong={this.state.somethingWentWrong}
-            validEmail={this.state.validEmail}
-            passwordsMatch={this.state.passwordsMatch}
-            passwordFormatIncorrect={this.state.passwordFormatIncorrect}
-            passwordEmpty={this.state.passwordEmpty}
-          />
-          <br></br>
-          <TouchableOpacity style={styles.submitBtn} onPress={this.handleSubmit}>
-            <Text>Next</Text>
-          </TouchableOpacity>
-          {this.state.errorCreateStripeCustomer &&
-            <Text style={styles.errorText}>
-              There was a processing error whilst creating your account.
-              Please try again in a few moments.
-            </Text>
-          }
+          <ServerNotAvailable />
         </View>
-      </View>
       )
     } else {
-      return (
-        <View>
-          <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
-          <Navigate to='/payment' />
+      if (!this.state.goToPayment) {
+        return (
+        <View style={styles.container}>
+        <TopBar settingsEnabled={false} />
+          <View style={styles.container}>
+            <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
+            <AccountBasicInfoInputView
+              firstNameGrabber={this.firstNameGrabber.bind(this)}
+              lastNameGrabber={this.lastNameGrabber.bind(this)}
+              userEmailGrabber={this.userEmailGrabber.bind(this)}
+              passwordGrabber={this.passwordGrabber.bind(this)}
+              confirmedPasswordGrabber={this.confirmedPasswordGrabber.bind(this)}
+              firstNameEmpty={this.state.firstNameEmpty}
+              lastNameEmpty={this.state.lastNameEmpty}
+              emailEmpty={this.state.emailEmpty}
+              emailAlreadyExists={this.state.emailAlreadyExists}
+              somethingWentWrong={this.state.somethingWentWrong}
+              validEmail={this.state.validEmail}
+              passwordsMatch={this.state.passwordsMatch}
+              passwordFormatIncorrect={this.state.passwordFormatIncorrect}
+              passwordEmpty={this.state.passwordEmpty}
+            />
+            <br></br>
+            <TouchableOpacity style={styles.submitBtn} onPress={this.handleSubmit}>
+              <Text>Next</Text>
+            </TouchableOpacity>
+            {this.state.errorCreateStripeCustomer &&
+              <Text style={styles.errorText}>
+                There was a processing error whilst creating your account.
+                Please try again in a few moments.
+              </Text>
+            }
+          </View>
         </View>
-      )
+        )
+      } else {
+        return (
+          <View>
+            <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
+            <Navigate to='/payment' />
+          </View>
+        )
+      }
     }
   }
 }

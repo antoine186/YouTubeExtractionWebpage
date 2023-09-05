@@ -7,19 +7,8 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, Icon, Image } from
 import { Navigate } from 'react-router-dom'
 import styles from '../utils/style_guide/MainWebpageStyle'
 import { connect } from 'react-redux'
-import TaggingPage from './TaggingPage'
-import ProgressionPage from './ProgressionPage'
-import LinkingPage from './LinkingPage'
-import CheckEmptyObject from '../utils/CheckEmptyObject'
-import Video1AnalysisPage from './Video1AnalysisPage'
-import Video2AnalysisPage from './Video2AnalysisPage'
-import Video3AnalysisPage from './Video3AnalysisPage'
-import Video4AnalysisPage from './Video4AnalysisPage'
-import Video5AnalysisPage from './Video5AnalysisPage'
-import { api, basicAccountCreateUrl } from '../utils/backend_configuration/BackendConfig'
-import GenerateRandomString from '../utils/GenerateRandomString'
-import ChannelSearchPage from './ChannelSearchPage'
 import VideoAdHocAnalysisPage from './VideoAdHocAnalysisPage'
+import ManualStoreClearing from '../utils/session_helpers/ManualStoreClearing'
 
 class LandingSwitchingPage extends Component {
   constructor (props) {
@@ -37,7 +26,8 @@ class LandingSwitchingPage extends Component {
       video3Show: false,
       video4Show: false,
       video5Show: false,
-      videoAdHocAnalysisShow: true
+      videoAdHocAnalysisShow: true,
+      serverUnavailable: false
     }
 
     this.clearToggleChoice = this.clearToggleChoice.bind(this)
@@ -140,6 +130,10 @@ class LandingSwitchingPage extends Component {
     this.setState({ videoAdHocAnalysisShow: true })
   }
 
+  serverUnavailableStatusGrabber (serverUnavailable) {
+    this.setState({ serverUnavailable })
+  }
+
   render () {
     if (!this.state.userSessionValidated) {
       return (
@@ -185,8 +179,11 @@ class LandingSwitchingPage extends Component {
                 {this.state.video5Show &&
                   <Text style={styles.titleText}>Emotional Machines Video Analysis (Beta)</Text>
                 }
-                {this.state.videoAdHocAnalysisShow &&
+                {this.state.videoAdHocAnalysisShow && !this.state.serverUnavailable &&
                   <Text style={styles.titleText}>Emotional Machines Video Analysis (Beta)</Text>
+                }
+                {this.state.serverUnavailable &&
+                  <Text style={styles.titleText}>Server Is Down</Text>
                 }
               </View>
               <ToggleButtonGroup
@@ -246,6 +243,7 @@ class LandingSwitchingPage extends Component {
                   </ToggleButton>
                   */}
               </ToggleButtonGroup>
+              {/*
               {this.state.searchShow &&
                 <SearchFunctionSwitchingPage />
               }
@@ -275,9 +273,14 @@ class LandingSwitchingPage extends Component {
               }
               {this.state.channelShow &&
                 <ChannelSearchPage />
+              } */}
+              {this.state.serverUnavailable &&
+                <ManualStoreClearing />
               }
-              {this.state.videoAdHocAnalysisShow &&
-                <VideoAdHocAnalysisPage />
+              {this.state.videoAdHocAnalysisShow && !this.state.serverUnavailable &&
+                <VideoAdHocAnalysisPage
+                  serverUnavailableStatusGrabber={this.serverUnavailableStatusGrabber.bind(this)}
+                 />
               }
           </View>
       </View>

@@ -61,6 +61,7 @@ export const commentsLlmEmoElaboration = './comments-llm-emo-elaboration'
 export const youtubeVideoAdhocAnalyse = './youtube-video-adhoc-analyse'
 export const youtubeRetrieveVideoAdhocResults = './youtube-retrieve-video-adhoc-results'
 export const removeSession = './remove-session'
+export const checkIfServerUp = './check-if-server-up'
 
 export const api = axios.create({
   baseURL: backendUrl

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { StatusBar } from 'expo-status-bar'
 import { TouchableOpacity, Text, View, Image, TextInput } from 'react-native'
 import styles from '../utils/style_guide/LoginPageStyle'
-import { api, loginAuthUrl, retrieveSubscriptionDetails, getSubscriptionStatus, retrieveAccountData, deleteSubscription } from '../utils/backend_configuration/BackendConfig'
+import { api, loginAuthUrl, retrieveSubscriptionDetails, getSubscriptionStatus, retrieveAccountData, checkIfServerUp } from '../utils/backend_configuration/BackendConfig'
 import { useSelector, useDispatch } from 'react-redux'
 import { validateUserSession } from '../store/Slices/UserSessionSlice'
 import { useNavigate, Navigate } from 'react-router-dom'
@@ -12,10 +12,13 @@ import { setstripeSubscription } from '../store/Slices/StripeSubscriptionSlice'
 import { setAccountData } from '../store/Slices/AccountDataSlice'
 import { userInputFieldMaxCharacterEmail } from '../utils/user_input_config/UserInputConfig'
 import { clearSessionLogout } from '../store/Slices/SessionLogoutSlice'
+import ServerNotAvailable from './ServerNotAvailable'
+import CheckIfServerUpOutsideSession from '../components/atoms/CheckIfServerUpOutsideSession'
 
 function Login () {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [serverUnavailable, setServerUnavailable] = useState(false)
   const [passIncorrect, setPassIncorrect] = useState(false)
   const [tooManySessionsActive, setTooManySessionsActive] = useState(false)
   const dispatch = useDispatch()
@@ -59,7 +62,18 @@ function Login () {
             dispatch(setAccountData(response.data.responsePayload))
           }
         }
-        )
+        ).catch(error => {
+          switch (error.response.status) {
+            case 503:
+              setServerUnavailable(true)
+              break
+            case 502:
+              setServerUnavailable(true)
+              break
+            default:
+              break
+          }
+        })
 
         api.post(retrieveSubscriptionDetails, {
           username
@@ -93,7 +107,18 @@ function Login () {
                 navigate('/')
               }
             }
-            )
+            ).catch(error => {
+              switch (error.response.status) {
+                case 503:
+                  setServerUnavailable(true)
+                  break
+                case 502:
+                  setServerUnavailable(true)
+                  break
+                default:
+                  break
+              }
+            })
           } else {
             console.log('No valid subscriptions found')
             dispatch(setValidSubscription(false))
@@ -101,7 +126,18 @@ function Login () {
             navigate('/')
           }
         }
-        )
+        ).catch(error => {
+          switch (error.response.status) {
+            case 503:
+              setServerUnavailable(true)
+              break
+            case 502:
+              setServerUnavailable(true)
+              break
+            default:
+              break
+          }
+        })
 
         // navigate('/home')
       } else {
@@ -115,17 +151,68 @@ function Login () {
         }
       }
     }
-    )
+    ).catch(error => {
+      switch (error.response.status) {
+        case 503:
+          setServerUnavailable(true)
+          break
+        case 502:
+          setServerUnavailable(true)
+          break
+        default:
+          break
+      }
+    })
   }
 
   function accountCreate () {
-    dispatch(setValidSubscription(false))
-    navigate('/account-create')
+    api.post(checkIfServerUp, {
+    }, {
+      withCredentials: true
+    }
+    ).then(response => {
+      if (response.data.operation_success) {
+        dispatch(setValidSubscription(false))
+        navigate('/account-create')
+      }
+    }
+    ).catch(error => {
+      switch (error.response.status) {
+        case 503:
+          setServerUnavailable(true)
+          break
+        case 502:
+          setServerUnavailable(true)
+          break
+        default:
+          break
+      }
+    })
   }
 
   function passwordForget () {
-    dispatch(setValidSubscription(false))
-    navigate('/forgot-password')
+    api.post(checkIfServerUp, {
+    }, {
+      withCredentials: true
+    }
+    ).then(response => {
+      if (response.data.operation_success) {
+        dispatch(setValidSubscription(false))
+        navigate('/forgot-password')
+      }
+    }
+    ).catch(error => {
+      switch (error.response.status) {
+        case 503:
+          setServerUnavailable(true)
+          break
+        case 502:
+          setServerUnavailable(true)
+          break
+        default:
+          break
+      }
+    })
   }
 
   function userNameChanged (email) {
@@ -140,63 +227,74 @@ function Login () {
     setPassword(password)
   }
 
-  if (userSessionValidated) {
-    return <Navigate to='/' />
-  } else {
+  if (serverUnavailable) {
     return (
       <View style={styles.container}>
-        <Image style={styles.image} source={require('../assets/images/EMOfficialLogo.png')} />
-        <Text style={styles.companyName}>Emotional Machines</Text>
-        <StatusBar style="auto" />
-        <View style={styles.inputView}>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Email"
-            placeholderTextColor="#003f5c"
-            onChangeText={(email) => userNameChanged(email)}
-            maxLength={userInputFieldMaxCharacterEmail}
-          />
-        </View>
-        <View style={styles.inputView}>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Password"
-            placeholderTextColor="#003f5c"
-            secureTextEntry={true}
-            onChangeText={(password) => passwordChanged(password)}
-            maxLength={userInputFieldMaxCharacter}
-          />
-        </View>
-        {passIncorrect &&
-          <View>
-            <Text style={styles.text}>
-              Incorrect credentials
-            </Text>
-            <br></br>
-          </View>
-        }
-        {tooManySessionsActive &&
-          <View>
-            <Text style={styles.text}>
-              Too many sessions logged in. Please logout your other sessions.
-            </Text>
-            <br></br>
-          </View>
-        }
-        <TouchableOpacity>
-          <Text style={styles.textButton} onPress={passwordForget}>Forgot Password?</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.textButton} onPress={accountCreate}>
-            {"Don't have an account? Create an account here"}
-          </Text>
-        </TouchableOpacity>
-        <br></br>
-        <TouchableOpacity style={styles.loginBtn} onPress={handleSubmit} ref={loginButtonRef}>
-          <Text style={styles.loginText}>LOGIN</Text>
-        </TouchableOpacity>
+        <ServerNotAvailable />
       </View>
     )
+  } else {
+    if (userSessionValidated) {
+      return <Navigate to='/' />
+    } else {
+      return (
+        <View style={styles.container}>
+          <CheckIfServerUpOutsideSession
+            setServerUnavailable={setServerUnavailable}
+          />
+          <Image style={styles.image} source={require('../assets/images/EMOfficialLogo.png')} />
+          <Text style={styles.companyName}>Emotional Machines</Text>
+          <StatusBar style="auto" />
+          <View style={styles.inputView}>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Email"
+              placeholderTextColor="#003f5c"
+              onChangeText={(email) => userNameChanged(email)}
+              maxLength={userInputFieldMaxCharacterEmail}
+            />
+          </View>
+          <View style={styles.inputView}>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Password"
+              placeholderTextColor="#003f5c"
+              secureTextEntry={true}
+              onChangeText={(password) => passwordChanged(password)}
+              maxLength={userInputFieldMaxCharacter}
+            />
+          </View>
+          {passIncorrect &&
+            <View>
+              <Text style={styles.text}>
+                Incorrect credentials
+              </Text>
+              <br></br>
+            </View>
+          }
+          {tooManySessionsActive &&
+            <View>
+              <Text style={styles.text}>
+                Too many sessions logged in. Please logout your other sessions.
+              </Text>
+              <br></br>
+            </View>
+          }
+          <TouchableOpacity>
+            <Text style={styles.textButton} onPress={passwordForget}>Forgot Password?</Text>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Text style={styles.textButton} onPress={accountCreate}>
+              {"Don't have an account? Create an account here"}
+            </Text>
+          </TouchableOpacity>
+          <br></br>
+          <TouchableOpacity style={styles.loginBtn} onPress={handleSubmit} ref={loginButtonRef}>
+            <Text style={styles.loginText}>LOGIN</Text>
+          </TouchableOpacity>
+        </View>
+      )
+    }
   }
 }
 
