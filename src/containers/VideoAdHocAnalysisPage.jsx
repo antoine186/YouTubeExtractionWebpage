@@ -72,7 +72,8 @@ class VideoAdHocAnalysisPage extends Component {
       top_n_sadness_average_emo_breakdown: '',
       top_n_surprise_average_emo_breakdown: '',
       oneSecond: 1000,
-      intervalId: '',
+      //intervalId: '',
+      intervalIdArray: [],
       username: this.props.accountData.accountData.payload.emailAddress,
       smartRetrievalOnGoing: false,
       publisher: '',
@@ -443,7 +444,11 @@ class VideoAdHocAnalysisPage extends Component {
           console.log('Clearing smart retrieval interval')
           self.props.deactivateVideoAdHocSmartRetrieval()
           self.setState({ numberOfSmartRetrievalAttempts: 0 })
-          clearInterval(self.state.intervalId)
+
+          for (let i = 0; i < self.state.intervalIdArray.length; i++) {
+            clearInterval(self.state.intervalIdArray[i])
+          }
+          self.setState({ intervalIdArray: [] })
         } else {
           if (self.state.numberOfSmartRetrievalAttempts >= videoAdHocAnalysisSmartRetrievalLimit) {
             console.log('Clearing smart retrieval interval')
@@ -451,7 +456,11 @@ class VideoAdHocAnalysisPage extends Component {
             self.setState({ commentsAcquisitionInitiated: false })
             self.props.deactivateVideoAdHocSmartRetrieval()
             self.setState({ numberOfSmartRetrievalAttempts: 0 })
-            clearInterval(self.state.intervalId)
+
+            for (let i = 0; i < self.state.intervalIdArray.length; i++) {
+              clearInterval(self.state.intervalIdArray[i])
+            }
+            self.setState({ intervalIdArray: [] })
           } else {
             const newNumberOfSmartRetrievalAttempts = self.state.numberOfSmartRetrievalAttempts + 1
             console.log('Incrementing the number of smart retrieval attempts to ' + newNumberOfSmartRetrievalAttempts)
@@ -466,7 +475,12 @@ class VideoAdHocAnalysisPage extends Component {
             self.setState({ commentsAcquisitionInitiated: false })
             self.props.deactivateVideoAdHocSmartRetrieval()
             self.setState({ numberOfSmartRetrievalAttempts: 0 })
-            clearInterval(self.state.intervalId)
+
+            for (let i = 0; i < self.state.intervalIdArray.length; i++) {
+              clearInterval(self.state.intervalIdArray[i])
+            }
+            self.setState({ intervalIdArray: [] })
+
             self.forceUpdate()
           }
         }
@@ -477,13 +491,23 @@ class VideoAdHocAnalysisPage extends Component {
             self.setState({ serverUnavailable: true })
             self.props.deactivateVideoAdHocSmartRetrieval()
             self.setState({ numberOfSmartRetrievalAttempts: 0 })
-            clearInterval(self.state.intervalId)
+
+            for (let i = 0; i < self.state.intervalIdArray.length; i++) {
+              clearInterval(self.state.intervalIdArray[i])
+            }
+            self.setState({ intervalIdArray: [] })
+
             break
           case 502:
             self.setState({ serverUnavailable: true })
             self.props.deactivateVideoAdHocSmartRetrieval()
             self.setState({ numberOfSmartRetrievalAttempts: 0 })
-            clearInterval(self.state.intervalId)
+
+            for (let i = 0; i < self.state.intervalIdArray.length; i++) {
+              clearInterval(self.state.intervalIdArray[i])
+            }
+            self.setState({ intervalIdArray: [] })
+
             break
           default:
             break
@@ -493,7 +517,10 @@ class VideoAdHocAnalysisPage extends Component {
 
     const self = this
     const intervalId = setInterval(function () { intervalRetrievalInnerFunction(self) }, 5 * this.state.oneSecond)
-    this.setState({ intervalId })
+
+    this.state.intervalIdArray.push(intervalId)
+
+    this.setState({ intervalIdArray: this.state.intervalIdArray })
   }
 
   simpleAdHocRetrieve () {
@@ -516,7 +543,10 @@ class VideoAdHocAnalysisPage extends Component {
         this.populateOverallEmoResultTable(response.data.responsePayload.average_emo_breakdown)
         this.populateCommentsResultTable(response.data.responsePayload)
 
-        clearInterval(this.state.intervalId)
+        for (let i = 0; i < self.state.intervalIdArray.length; i++) {
+          clearInterval(self.state.intervalIdArray[i])
+        }
+        self.setState({ intervalIdArray: [] })
       } else {
         console.log('Nothing returned at all')
         this.setState({ noResultsToReturn: true })
