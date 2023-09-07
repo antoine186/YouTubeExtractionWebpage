@@ -23,6 +23,7 @@ import { llmModel } from '../utils/llm_configuration/LlmConfiguration'
 import YTCommentsDescriptionCard from '../components/molecules/YTCommentsDescriptionCard'
 import CheckIfServerUpInsideSession from '../components/atoms/CheckIfServerUpInsideSession'
 import ManualStoreClearing from '../utils/session_helpers/ManualStoreClearing'
+import { validateIsServerDown } from '../store/Slices/IsServerDownSlice'
 
 const { vw, vh, vmin, vmax } = require('react-native-viewport-units')
 
@@ -473,13 +474,13 @@ class VideoAdHocAnalysisPage extends Component {
       ).catch(error => {
         switch (error.response.status) {
           case 503:
-            this.setState({ serverUnavailable: true })
+            self.setState({ serverUnavailable: true })
             self.props.deactivateVideoAdHocSmartRetrieval()
             self.setState({ numberOfSmartRetrievalAttempts: 0 })
             clearInterval(self.state.intervalId)
             break
           case 502:
-            this.setState({ serverUnavailable: true })
+            self.setState({ serverUnavailable: true })
             self.props.deactivateVideoAdHocSmartRetrieval()
             self.setState({ numberOfSmartRetrievalAttempts: 0 })
             clearInterval(self.state.intervalId)
@@ -538,6 +539,7 @@ class VideoAdHocAnalysisPage extends Component {
   }
 
   setServerUnavailable (setServerUnavailable) {
+    this.props.validateIsServerDown()
     this.setState({ setServerUnavailable })
   }
 
@@ -729,7 +731,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = (dispatch) => {
   return {
     activateVideoAdHocSmartRetrieval: (value) => dispatch(activateVideoAdHocSmartRetrieval(value)),
-    deactivateVideoAdHocSmartRetrieval: (value) => dispatch(deactivateVideoAdHocSmartRetrieval(value))
+    deactivateVideoAdHocSmartRetrieval: (value) => dispatch(deactivateVideoAdHocSmartRetrieval(value)),
+    validateIsServerDown: (value) => dispatch(validateIsServerDown(value))
   }
 }
 

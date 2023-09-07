@@ -25,6 +25,7 @@ function Login () {
   const navigate = useNavigate()
 
   const userSessionValidated = useSelector(state => state.userSession.validated)
+  const isServerDown = useSelector(state => state.isServerDown.validated)
 
   const loginButtonRef = React.useRef()
 
@@ -227,7 +228,13 @@ function Login () {
     setPassword(password)
   }
 
-  if (serverUnavailable) {
+  if (isServerDown) {
+    return (
+      <View style={styles.container}>
+        <ServerNotAvailable />
+      </View>
+    )
+  } else if (serverUnavailable) {
     return (
       <View style={styles.container}>
         <ServerNotAvailable />
