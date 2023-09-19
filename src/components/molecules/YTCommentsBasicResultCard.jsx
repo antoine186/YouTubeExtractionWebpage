@@ -51,7 +51,8 @@ class YTCommentsBasicResultCard extends Component {
       emoElaborationPromptingLlm: false,
       emoElaborationCommentsSummaryExpand: false,
       emoElaborationllmGptReply: '',
-      hideCard: this.props.hideCard
+      hideCard: this.props.hideCard,
+      setServerUnavailable: this.props.setServerUnavailable
     }
   }
 
@@ -89,6 +90,17 @@ class YTCommentsBasicResultCard extends Component {
     ).catch(error => {
       if (this.state.promptingLlm) {
         this.setState({ promptingLlm: !this.state.promptingLlm })
+      }
+
+      switch (error.response.status) {
+        case 503:
+          this.state.setServerUnavailable(true)
+          break
+        case 502:
+          this.state.setServerUnavailable(true)
+          break
+        default:
+          break
       }
     })
   }
@@ -131,6 +143,17 @@ class YTCommentsBasicResultCard extends Component {
     ).catch(error => {
       if (this.state.emoElaborationPromptingLlm) {
         this.setState({ emoElaborationPromptingLlm: !this.state.emoElaborationpromptingL })
+      }
+
+      switch (error.response.status) {
+        case 503:
+          this.state.setServerUnavailable(true)
+          break
+        case 502:
+          this.state.setServerUnavailable(true)
+          break
+        default:
+          break
       }
     })
   }

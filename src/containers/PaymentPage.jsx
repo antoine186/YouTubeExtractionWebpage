@@ -97,42 +97,6 @@ class PaymentPage extends Component {
             }
             )
           }
-
-          /*
-          api.post(getSubscriptionStatus, {
-            stripeSubscriptionId: response.data.responsePayload.stripe_subscription_id
-          }, {
-            withCredentials: true
-          }
-          ).then(response => {
-            if (response.data.operation_success) {
-              console.log(response.data.responsePayload.stripe_subscription_status)
-              if (response.data.responsePayload.stripe_subscription_status === 'active' ||
-                response.data.responsePayload.stripe_subscription_status === 'trialing') {
-                console.log('In payment amendment mode')
-
-                // this.props.setValidSubscription(true)
-                this.props.setAmendPayment()
-              } else {
-                console.log('Subscription cancelled or expired. Creating a new subscription.')
-
-                api.post(getStripeCustomerId, {
-                  username: this.props.accountData.accountData.payload.emailAddress
-                }, {
-                  withCredentials: true
-                }
-                ).then(response => {
-                  if (response.data.operation_success) {
-                    this.props.setStripeCustomerId(response.data.responsePayload)
-                    this.props.setValidSubscription(false)
-                    this.createMissingSubscription()
-                  }
-                }
-                )
-              }
-            } else {  }
-          }
-          ) */
         } else {
           console.log('No existing subscription')
 

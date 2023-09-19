@@ -568,9 +568,9 @@ class VideoAdHocAnalysisPage extends Component {
     })
   }
 
-  setServerUnavailable (setServerUnavailable) {
+  setServerUnavailable (serverUnavailable) {
     this.props.validateIsServerDown()
-    this.setState({ setServerUnavailable })
+    this.setState({ serverUnavailable })
   }
 
   render () {
@@ -698,6 +698,7 @@ class VideoAdHocAnalysisPage extends Component {
                   topNComments={this.state.topNJoy}
                   topNEmoBreakdown={this.state.top_n_joy_average_emo_breakdown}
                   hideCard={this.state.hideHappyCard}
+                  setServerUnavailable={this.setServerUnavailable.bind(this)}
                 />
                 <YTCommentsBasicResultCard
                   emoIcon={'😡'}
@@ -705,6 +706,7 @@ class VideoAdHocAnalysisPage extends Component {
                   topNComments={this.state.topNAnger}
                   topNEmoBreakdown={this.state.top_n_anger_average_emo_breakdown}
                   hideCard={this.state.hideAngryCard}
+                  setServerUnavailable={this.setServerUnavailable.bind(this)}
                 />
                 <YTCommentsBasicResultCard
                   emoIcon={'🤢'}
@@ -712,6 +714,7 @@ class VideoAdHocAnalysisPage extends Component {
                   topNComments={this.state.topNDisgust}
                   topNEmoBreakdown={this.state.top_n_disgust_average_emo_breakdown}
                   hideCard={this.state.hideDisgustCard}
+                  setServerUnavailable={this.setServerUnavailable.bind(this)}
                 />
                 <YTCommentsBasicResultCard
                   emoIcon={'😱'}
@@ -719,6 +722,7 @@ class VideoAdHocAnalysisPage extends Component {
                   topNComments={this.state.topNFear}
                   topNEmoBreakdown={this.state.top_n_fear_average_emo_breakdown}
                   hideCard={this.state.hideFearCard}
+                  setServerUnavailable={this.setServerUnavailable.bind(this)}
                 />
                 <YTCommentsBasicResultCard
                   emoIcon={'😐'}
@@ -726,6 +730,7 @@ class VideoAdHocAnalysisPage extends Component {
                   topNComments={this.state.topNNeutral}
                   topNEmoBreakdown={this.state.top_n_neutral_average_emo_breakdown}
                   hideCard={this.state.hideNeutralCard}
+                  setServerUnavailable={this.setServerUnavailable.bind(this)}
                 />
                 <YTCommentsBasicResultCard
                   emoIcon={'😢'}
@@ -733,6 +738,7 @@ class VideoAdHocAnalysisPage extends Component {
                   topNComments={this.state.topNSadness}
                   topNEmoBreakdown={this.state.top_n_sadness_average_emo_breakdown}
                   hideCard={this.state.hideSadCard}
+                  setServerUnavailable={this.setServerUnavailable.bind(this)}
                 />
                 <YTCommentsBasicResultCard
                   emoIcon={'😯'}
@@ -740,6 +746,7 @@ class VideoAdHocAnalysisPage extends Component {
                   topNComments={this.state.topNSurprise}
                   topNEmoBreakdown={this.state.top_n_surprise_average_emo_breakdown}
                   hideCard={this.state.hideSurprisedCard}
+                  setServerUnavailable={this.setServerUnavailable.bind(this)}
                 />
               </View>
             </View>

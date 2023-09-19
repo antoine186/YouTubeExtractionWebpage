@@ -16,6 +16,7 @@ import TopBar from '../components/molecules/TopBar'
 import StripeCustomerCreate from '../utils/account_creation_helpers/StripeCustomerCreate'
 import { setStripeCustomerId } from '../store/Slices/StripeCustomerIdSlice'
 import ServerNotAvailable from './ServerNotAvailable'
+import CleanupBasicAccountWithoutCleaningupStripeAccount from '../utils/account_cleanup_helpers/CleanupBasicAccountWithoutCleaningupStripeAccount'
 
 class AccountCreationPage extends React.Component {
   constructor (props) {
@@ -208,6 +209,9 @@ class AccountCreationPage extends React.Component {
                 There was a processing error whilst creating your account.
                 Please try again in a few moments.
               </Text>
+            }
+            {this.state.errorCreateStripeCustomer &&
+              <CleanupBasicAccountWithoutCleaningupStripeAccount emailAddress={this.state.emailAddress} />
             }
           </View>
         </View>
