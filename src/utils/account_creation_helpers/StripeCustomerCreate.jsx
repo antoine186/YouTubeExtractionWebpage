@@ -13,12 +13,15 @@ function StripeCustomerCreate (accountCreationData, setStripeCustomerId, goToPay
     } else {
       console.log('Failed to create the stripe customer id')
       errorCreateStripeCustomerGrabber(true)
+      /*
       api.post(deleteAccount, {
-        accountCreationData
+        emailAddress: accountCreationData.emailAddress,
+        deleteUserSessionData: false
       }, {
         withCredentials: true
       }
       )
+      */
     }
   }
   )

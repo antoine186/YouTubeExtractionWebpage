@@ -47,22 +47,30 @@ class AccountCreationPage extends React.Component {
 
   firstNameGrabber (firstName) {
     this.setState({ firstName })
+    this.setState({ firstNameEmpty: false })
   }
 
   lastNameGrabber (lastName) {
     this.setState({ lastName })
+    this.setState({ lastNameEmpty: false })
   }
 
   userEmailGrabber (email) {
     this.setState({ emailAddress: email })
+    this.setState({ validEmail: true })
+    this.setState({ emailEmpty: false })
   }
 
   passwordGrabber (password) {
     this.setState({ password })
+    this.setState({ passwordEmpty: false })
+    this.setState({ passwordsMatch: true })
+    this.setState({ passwordFormatIncorrect: false })
   }
 
   confirmedPasswordGrabber (password) {
     this.setState({ confirmedPassword: password })
+    this.setState({ passwordsMatch: true })
   }
 
   errorCreateStripeCustomerGrabber (error) {
@@ -76,21 +84,23 @@ class AccountCreationPage extends React.Component {
   handleSubmit () {
     let handleSubmitProceed = true
 
-    if (this.state.firstName === undefined) {
+    this.setState({ errorCreateStripeCustomer: false })
+
+    if (this.state.firstName === undefined || this.state.firstName === '') {
       handleSubmitProceed = false
       this.setState({ firstNameEmpty: true })
     } else {
       this.setState({ firstNameEmpty: false })
     }
 
-    if (this.state.lastName === undefined) {
+    if (this.state.lastName === undefined || this.state.lastName === '') {
       handleSubmitProceed = false
       this.setState({ lastNameEmpty: true })
     } else {
       this.setState({ lastNameEmpty: false })
     }
 
-    if (this.state.emailAddress === undefined) {
+    if (this.state.emailAddress === undefined || this.state.emailAddress === '') {
       handleSubmitProceed = false
       this.setState({ emailEmpty: true })
     } else {
@@ -104,7 +114,7 @@ class AccountCreationPage extends React.Component {
       this.setState({ emailEmpty: false })
     }
 
-    if (this.state.password === undefined) {
+    if (this.state.password === undefined || this.state.password === '') {
       handleSubmitProceed = false
       this.setState({ passwordEmpty: true })
     } else {
@@ -211,7 +221,10 @@ class AccountCreationPage extends React.Component {
               </Text>
             }
             {this.state.errorCreateStripeCustomer &&
-              <CleanupBasicAccountWithoutCleaningupStripeAccount emailAddress={this.state.emailAddress} />
+              <CleanupBasicAccountWithoutCleaningupStripeAccount
+                emailAddress={this.state.emailAddress}
+                deleteUserSessionData={false}
+              />
             }
           </View>
         </View>
