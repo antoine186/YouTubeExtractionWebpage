@@ -1,0 +1,10 @@
+
+scoop install nodejs
+
+npm install -g expo-cli
+
+npm install
+
+# When all dependencies installed, run:
+
+npm start
