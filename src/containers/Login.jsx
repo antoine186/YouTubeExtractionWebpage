@@ -20,7 +20,10 @@ function Login () {
   const [password, setPassword] = useState('')
   const [serverUnavailable, setServerUnavailable] = useState(false)
   const [passIncorrect, setPassIncorrect] = useState(false)
+  const [accountNonExistent, setAccountNonExistent] = useState(false)
   const [tooManySessionsActive, setTooManySessionsActive] = useState(false)
+  const [usernameEmpty, setUsernameEmpty] = useState(false)
+  const [passwordEmpty, setPasswordEmpty] = useState(false)
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
@@ -41,6 +44,16 @@ function Login () {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+
+    if (username === '') {
+      setUsernameEmpty(true)
+      return
+    }
+
+    if (password === '') {
+      setPasswordEmpty(true)
+      return
+    }
 
     api.post(loginAuthUrl, {
       username,
@@ -149,6 +162,8 @@ function Login () {
         } else if (response.data.error_message === 'wrong_credentials') {
           console.log('Credentials incorrect')
           setPassIncorrect(true)
+        } else if (response.data.error_message === 'account_not_found') {
+          setAccountNonExistent(true)
         }
       }
     }
@@ -218,13 +233,19 @@ function Login () {
 
   function userNameChanged (email) {
     setTooManySessionsActive(false)
+    setAccountNonExistent(false)
     setPassIncorrect(false)
+    setUsernameEmpty(false)
+    setPasswordEmpty(false)
     setUsername(email)
   }
 
   function passwordChanged (password) {
     setTooManySessionsActive(false)
+    setAccountNonExistent(false)
     setPassIncorrect(false)
+    setUsernameEmpty(false)
+    setPasswordEmpty(false)
     setPassword(password)
   }
 
@@ -261,6 +282,14 @@ function Login () {
               maxLength={userInputFieldMaxCharacterEmail}
             />
           </View>
+          {usernameEmpty &&
+            <View>
+              <Text style={styles.text}>
+                Username cannot be empty
+              </Text>
+              <br></br>
+            </View>
+          }
           <View style={styles.inputView}>
             <TextInput
               style={styles.textInput}
@@ -271,10 +300,26 @@ function Login () {
               maxLength={userInputFieldMaxCharacter}
             />
           </View>
+          {passwordEmpty &&
+            <View>
+              <Text style={styles.text}>
+                Password cannot be empty
+              </Text>
+              <br></br>
+            </View>
+          }
           {passIncorrect &&
             <View>
               <Text style={styles.text}>
                 Incorrect credentials
+              </Text>
+              <br></br>
+            </View>
+          }
+          {accountNonExistent &&
+            <View>
+              <Text style={styles.text}>
+                Account could not be found
               </Text>
               <br></br>
             </View>
