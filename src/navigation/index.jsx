@@ -30,6 +30,7 @@ function App () {
                     </Routes>
                 </HashRouter>
         </PersistGate>
+        {/* Below isn't used as the session logout duration is set in cookie sent back from backend */}
         {/*<SessionController />*/}
     </Provider>
   )

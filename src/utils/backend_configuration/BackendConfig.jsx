@@ -62,6 +62,7 @@ export const youtubeVideoAdhocAnalyse = './youtube-video-adhoc-analyse'
 export const youtubeRetrieveVideoAdhocResults = './youtube-retrieve-video-adhoc-results'
 export const removeSession = './remove-session'
 export const checkIfServerUp = './check-if-server-up'
+export const sessionConfigurationData = './session_configuration_data'
 
 export const api = axios.create({
   baseURL: backendUrl

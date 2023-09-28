@@ -1,3 +1,6 @@
+// Below isn't used as the session logout duration is set in cookie sent back from backend
+
+/*
 import React, { useEffect } from 'react'
 import ManualStoreClearing from '../../utils/session_helpers/ManualStoreClearing'
 import { timeTowardsAutoLogout } from '../../utils/session_configuration/SessionConfig'
@@ -27,3 +30,4 @@ function SessionController () {
 }
 
 export default SessionController
+*/
