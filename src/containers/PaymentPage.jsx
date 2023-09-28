@@ -75,7 +75,7 @@ class PaymentPage extends Component {
           this.props.setstripeSubscription(response.data.responsePayload)
           this.props.setValidSubscription(true)
 
-          if (response.data.responsePayload.subscription_status === 'active') {
+          if (response.data.responsePayload.subscription_status === 'active' || response.data.responsePayload.subscription_status === 'trialing') {
             console.log('In payment amendment mode')
 
             // this.props.setValidSubscription(true)
